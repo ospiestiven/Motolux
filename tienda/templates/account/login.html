@@ -1,0 +1,125 @@
+{% extends "tienda/index/base1.html" %}
+{% load static %}
+{% load allauth account %}
+{% load socialaccount %}
+
+
+{% block head_title %}
+Iniciar Sesión
+{% endblock head_title %}
+
+{% block content %}
+
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+        <p class="text-center text-muted mb-4">¿No tienes una cuenta? <a href="{{ signup_url }}" class="link-danger">Regístrate
+                ahora</a></p>
+
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-danger">Motolux</h2>
+            <h5 class="mb-0 text-secondary">Iniciar Sesión</h5>
+        </div>
+
+        {% if not SOCIALACCOUNT_ONLY %}
+        {% url 'account_login' as login_url %}
+        {% element form form=form method="post" action=login_url %}
+
+        {% slot body %}
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="login" class="form-label">Usuario o correo electrónico:</label>
+            <input type="text" id="login" name="login" class="form-control" required placeholder="Usuario o correo electrónico">
+            {% if form.login.errors %}
+            <div class="text-danger small mt-1">
+                {% for error in form.login.errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            <label for="password" class="form-label">Contraseña:</label>
+            <input type="password" id="password" name="password" class="form-control" required
+                placeholder="Ingresa tu contraseña">
+        </div>
+        
+        <!-- Aquí van los errores generales (ej: credenciales incorrectas) -->
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger small mt-2">
+            {% for error in form.non_field_errors %}
+            <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {{ redirect_field }}
+        {% endslot %}
+
+        {% slot actions %}
+        <button type="submit" class=" btn w-100 btn_login">Iniciar Sesión</button>
+        {% endslot %}
+        {% endelement %}
+
+        <div class="d-flex justify-content-between mt-3">
+            <a href="{% url 'account_reset_password' %}" class="link-secondary small">¿Olvidaste tu contraseña?</a>
+            <a href="{{ signup_url }}" class="link-danger small">Regístrate</a>
+        </div>
+        {% endif %}
+
+        {% if LOGIN_BY_CODE_ENABLED or PASSKEY_LOGIN_ENABLED or SOCIALACCOUNT_ENABLED %}
+        <!-- Separador -->
+        <div class="text-center my-3">
+            <span class="text-muted">o</span>
+        </div>
+
+        {% if SOCIALACCOUNT_ENABLED %}
+        <!-- Botón de Google personalizado -->
+        <a href="{% provider_login_url 'google' %}"
+            class="btn btn-outline-dark w-100 d-flex align-items-center justify-content-center">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20" class="me-2">
+            Continuar con Google
+        </a>
+        
+        {% endif %}
+
+        {% if LOGIN_BY_CODE_ENABLED or PASSKEY_LOGIN_ENABLED %}
+        {% element button_group vertical=True %}
+        {% if PASSKEY_LOGIN_ENABLED %}
+        {% element button type="submit" form="mfa_login" id="passkey_login" class="btn btn-outline-dark w-100" %}
+        Iniciar sesión con Passkey
+        {% endelement %}
+        {% endif %}
+        {% if LOGIN_BY_CODE_ENABLED %}
+        {% element button href=request_login_code_url class="btn btn-outline-dark w-100" %}
+        Enviarme un código de acceso
+        {% endelement %}
+        {% endif %}
+        {% endelement %}
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block extra_body %}
+{{ block.super }}
+{% if PASSKEY_LOGIN_ENABLED %}
+{% include "mfa/webauthn/snippets/login_script.html" with button_id="passkey_login" %}
+{% endif %}
+{% endblock %}
+
+<!-- <form method="post">
+
+
+
+    <input type="hidden" name="csrfmiddlewaretoken"
+        value="uJjzon6zc8CTFrLigmoRTKUBw2o1ajTKG6pBsWWJdXzcf9CfzPvLKuIlMuNqO9br">
+
+
+    <button type="submit"> </button>
+
+
+</form> -->

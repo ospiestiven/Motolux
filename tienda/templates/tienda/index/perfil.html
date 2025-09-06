@@ -1,0 +1,155 @@
+{% extends 'tienda/index/base1.html' %}
+{% load static %}
+
+{% block title %}Perfil de Usuario - Motolux{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-lg-3 mb-4">
+      <div class="list-group shadow-sm">
+        <a href="#perfil" class="list-group-item list-group-item-action active" data-bs-toggle="tab">
+          <i class="bi bi-person-fill me-2"></i> Perfil
+        </a>
+        <a href="#direcciones" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+          <i class="bi bi-geo-alt-fill me-2"></i> Direcciones
+        </a>
+        <a href="#pedidos" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+          <i class="bi bi-bag-check-fill me-2"></i> Pedidos
+        </a>
+        <a href="#informacion" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+          <i class="bi bi-info-circle-fill me-2"></i> Información
+        </a>
+        <a href="{% url 'account_change_password' %}" class="list-group-item list-group-item-action">
+          <i class="bi bi-lock-fill me-2"></i> Cambiar Contraseña
+        </a>
+        <a href="{% url 'account_logout' %}" class="list-group-item list-group-item-action text-danger">
+          <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+        </a>
+      </div>
+    </div>
+
+    <!-- Contenido -->
+    <div class="col-lg-9">
+      <div class="tab-content">
+        <!-- Perfil -->
+        <div class="tab-pane fade show active" id="perfil">
+          <div class="card shadow p-4 mb-4">
+            <h3 class="fw-bold text-danger mb-3">Mi Perfil</h3>
+            <form method="post" autocomplete="off">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Usuario</label>
+                  <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Nombre completo</label>
+                  <input type="text" class="form-control" name="nombre_completo" value="{{ user.first_name }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Correo electrónico</label>
+                  <input type="email" class="form-control" name="correo_electronico" value="{{ user.email }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Teléfono</label>
+                  <input type="text" class="form-control" name="telefono" value="{{ usuario.telefono }}">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-danger">Guardar cambios</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Direcciones -->
+        <div class="tab-pane fade" id="direcciones">
+          <div class="card shadow p-4 mb-4">
+            <h5 class="fw-bold text-danger mb-3">Direcciones</h5>
+            <p><strong>Departamento:</strong> {{ usuario.departamento }}</p>
+            <p><strong>Ciudad:</strong> {{ usuario.ciudad }}</p>
+            <p><strong>Dirección:</strong> {{ usuario.direccion }}</p>
+            <p><strong>Dirección 2:</strong> {{ usuario.direccion2 }}</p>
+          </div>
+          <!-- agregar direcciones -->
+          <div class="card shadow p-4 mb-4">
+            <h5 class="fw-bold text-danger mb-3">Agregar/Editar Dirección</h5>
+            <form method="post" autocomplete="off">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="id_departamento" class="form-label">Departamento</label>
+                <input type="text" name="departamento" id="id_departamento" class="form-control" value="{{ usuario.departamento|default_if_none:'' }}">
+              </div>
+              
+              <div class="mb-3">
+                <label for="id_ciudad" class="form-label">Ciudad</label>
+                <input type="text" name="ciudad" id="id_ciudad" class="form-control" value="{{ usuario.ciudad|default_if_none:'' }}">
+              </div>
+              <div class="mb-3">
+                <label for="id_direccion" class="form-label">Dirección</label>
+                <input type="text" name="direccion" id="id_direccion" class="form-control" value="{{ usuario.direccion|default_if_none:'' }}">
+              </div>
+              <div class="mb-3">
+                <label for="id_direccion2" class="form-label">Dirección 2</label>
+                <input type="text" name="direccion2" id="id_direccion2" class="form-control" value="{{ usuario.direccion2|default_if_none:'' }}">
+              </div>
+              <button type="submit" class="btn w-100" style="background-color: #DD0B15; color: #fff;">Guardar Cambios</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Pedidos -->
+        <div class="tab-pane fade" id="pedidos">
+          <div class="card shadow p-4 mb-4">
+            <h5 class="fw-bold text-danger mb-3">Pedidos recientes</h5>
+            {% if pedidos %}
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Fecha</th>
+                  <th>producto</th>
+                  <th>Total</th>
+                  <th>Estado</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pedido in pedidos %}
+                <tr>
+                  <td>{{ pedido.id }}</td>
+                  <td>{{ pedido.fecha|date:"d/m/Y" }}</td>
+                  <td>{{ pedido.imagen }}</td>
+                  <td>${{ pedido.total }}</td>
+                  <td>
+                    <span
+                      class="badge {% if pedido.estado == 'Entregado' %}bg-success{% else %}bg-secondary{% endif %}">
+                      {{ pedido.estado }}
+                    </span>
+                  </td>
+                  <td>
+                    <a href="{% url 'pedido_detalle' pedido.id %}" class="btn btn-outline-danger btn-sm">Ver</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">No tienes pedidos recientes.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Información -->
+        <div class="tab-pane fade" id="informacion">
+          <div class="card shadow p-4 mb-4">
+            <h5 class="fw-bold text-danger">Información General</h5>
+            <p>Bienvenido, <strong>{{ user.username }}</strong>. Aquí podrás ver y actualizar tus datos, gestionar
+              direcciones y consultar pedidos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

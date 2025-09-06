@@ -1,0 +1,103 @@
+{% extends "tienda/index/base1.html" %}
+{% load static %}
+{% load allauth account %}
+{% load socialaccount %}
+
+{% block head_title %}
+Registro
+{% endblock head_title %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+
+        <!-- Encabezado -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-danger">Motolux</h2>
+            <h5 class="mb-0 text-secondary">Crear cuenta</h5>
+        </div>
+
+        {% url 'account_signup' as action_url %}
+        <form method="post" action="{{ action_url }}">
+            {% csrf_token %}
+
+            <!-- Usuario / Email -->
+            <div class="mb-3">
+                <label for="id_username" class="form-label">Usuario: </label>
+                <input type="text" name="username" id="id_username" class="form-control" placeholder="Usuario" required>
+                {% if form.username.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.username.errors %}
+                    <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_email" class="form-label">Correo electrónico: </label>
+                <input type="email" name="email" id="id_email" class="form-control" placeholder="ejemplo@ejemplo.com" required>
+                {% if form.email.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.email.errors %}
+                    <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-3">
+                <label for="id_password1" class="form-label">Contraseña: </label>
+                <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Contraseña" required>
+                {% if form.password1.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.password1.errors %}
+                    <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Confirmar contraseña -->
+            <div class="mb-3">
+                <label for="id_password2" class="form-label">Confirmar Contraseña: </label>
+                <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Confirmar Contraseña" required>
+                {% if form.password2.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.password2.errors %}
+                    <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            {{ redirect_field }}
+
+            <!-- Botón registrar -->
+            <button type="submit" class="btn w-100  btn_signup" ">
+                Registrarse
+            </button>
+        </form>
+
+        <!-- Separador -->
+        <div class="text-center my-3">
+            <span class="text-muted">o</span>
+        </div>
+
+        <!-- Google -->
+        <a href="{% provider_login_url 'google' %}"
+            class="btn btn-outline-dark w-100 d-flex align-items-center justify-content-center">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20" class="me-2">
+            Continuar con Google
+        </a>
+
+        <!-- Enlace para login -->
+        <div class="text-center mt-3">
+            <span class="text-secondary small">¿Ya tienes una cuenta? </span>
+            <a href="{% url 'account_login' %}" class="link-danger small">Inicia sesión</a>
+        </div>
+
+    </div>
+</div>
+{% endblock content %}

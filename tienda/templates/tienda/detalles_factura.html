@@ -1,0 +1,192 @@
+{% extends 'tienda/index/base1.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <!-- FORMULARIO DE FACTURACIÓN -->
+        <div class="col-lg-7 mb-4">
+            <div class="card shadow p-4">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-danger">Motolux</h2>
+                    <h5 class="mb-0 text-secondary">Detalles de Facturación</h5>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    {% for message in messages %}
+                    <div class="alert alert-danger py-1 mb-2 small text-center">{{ message }}</div>
+                    {% endfor %}
+                
+                    <div class="mb-3">
+                        <label for="id_nombre_completo" class="form-label">Nombre completo</label>
+                        <input type="text" name="nombre_completo" id="id_nombre_completo" class="form-control"
+                            value="{{ request.user.first_name }}" required>
+                    </div>
+                
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="text" id="id_telefono" name="telefono" class="form-control" value="{{ usuario.telefono }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cedula" class="form-label">Número de Cédula</label>
+                            <input type="text" id="cedula" name="cedula" class="form-control" value="{{ usuario.cedula }}">
+                        </div>
+                    </div>
+                
+                    
+                
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="departamento" class="form-label">Departamento</label>
+                            <input type="text" id="id_departamento" name="departamento" class="form-control" value="{{ usuario.departamento }}"
+                                placeholder="Departamento" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="ciudad" class="form-label">Ciudad</label>
+                            <input type="text" id="id_ciudad" name="ciudad" class="form-control" value="{{ usuario.ciudad }}"
+                                placeholder="Ciudad" required>
+                        </div>
+                        
+                    </div>
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <input type="text" id="direccion" name="direccion" class="form-control mb-2" value="{{ usuario.direccion }}"
+                            placeholder="Número de casa y nombre de la calle" required>
+                        <input type="text" id="id_direccion2" name="direccion2" class="form-control" value="{{ usuario.direccion2 }}"
+                            placeholder="Apartamento, habitación, etc. (opcional)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_correo_electronico" class="form-label">Correo electrónico</label>
+                        <input type="email" name="correo_electronico" id="id_correo_electronico" class="form-control"
+                            value="{{ request.user.email }}" required>
+                    </div>
+                
+                    <button type="submit" class="btn w-100 mt-3" style="background-color: #DD0B15; color: #fff;">
+                        Guardar y Continuar
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- RESUMEN DEL CARRITO -->
+        <div class="col-lg-5">
+            <div class="card shadow p-4">
+                <h5 class="fw-bold text-danger mb-3">🛒 Resumen de tu compra</h5>
+                <div id="resumen-carrito">
+                    <!-- Aquí se cargarán los productos desde localStorage -->
+                </div>
+                <hr>
+                <h5 class="d-flex justify-content-between">
+                    <span>Total:</span>
+                    <span class="text-danger" id="resumen-total">$0</span>
+                </h5>
+                <div class="mb-3">
+                    <label for="metodo_pago" class="form-label">Método de Pago</label>
+                    <select name="metodo_pago" id="metodo_pago" class="form-select" required>
+                        <option value="">Seleccione un método</option>
+                        {% for metodo in metodos_pago %}
+                        <option value="{{ metodo.id }}">{{ metodo.tipo }}</option>
+                        {% endfor %}
+                    </select>
+                
+                </div>
+                <!-- realizar pedido -->
+                <button type="button" id="btn-realizar-pedido" class="btn btn-outline-danger w-100 mt-3">
+                    ✏️ Realizar Pedido
+                </button>
+
+
+            </div>
+        </div>
+    </div>
+    
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnPedido = document.querySelector("#btn-realizar-pedido");
+
+        if (btnPedido) {
+            btnPedido.addEventListener("click", () => {
+                let cart = JSON.parse(localStorage.getItem("cart")) || [];
+                let metodoPago = document.getElementById("metodo_pago").value;
+
+                if (cart.length === 0) {
+                    alert("Tu carrito está vacío.");
+                    return;
+                }
+
+                if (!metodoPago) {
+                    alert("Debes seleccionar un método de pago.");
+                    return;
+                }
+
+                fetch("{% url 'crear_pedido' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({
+                        carrito: cart,
+                        metodo_pago: metodoPago
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("✅ Pedido creado con éxito. ID: " + data.pedido_id);
+                            localStorage.removeItem("cart"); // limpiar carrito
+                            location.href = "{% url 'perfil' %}"; // redirigir al perfil
+                        } else {
+                            alert("❌ Hubo un problema al crear el pedido.");
+                        }
+                    })
+                    .catch(err => console.error(err));
+            });
+        }
+    });
+</script>
+
+
+
+<script>
+    // Cargar carrito en el resumen de facturación
+    document.addEventListener("DOMContentLoaded", () => {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const resumenCarrito = document.getElementById("resumen-carrito");
+        const resumenTotal = document.getElementById("resumen-total");
+
+        if (cart.length === 0) {
+            resumenCarrito.innerHTML = "<p class='text-muted'>Tu carrito está vacío.</p>";
+            resumenTotal.textContent = "$0";
+            return;
+        }
+
+        let total = 0;
+        resumenCarrito.innerHTML = "";
+
+        cart.forEach(item => {
+            let subtotal = item.price * item.quantity;
+            total += subtotal;
+
+            resumenCarrito.innerHTML += `
+                <div class="d-flex align-items-center border-bottom py-2">
+                    <img src="${item.image}" alt="${item.name}" class="me-2 rounded"
+                         style="width: 60px; height: 60px; object-fit: cover;">
+                    <div class="flex-grow-1">
+                        <strong>${item.name}</strong><br>
+                        <small>${item.quantity} x $${item.price}</small><br>
+                        <small class="text-danger">Subtotal: $${subtotal.toFixed(2)}</small>
+                    </div>
+                </div>
+            `;
+        });
+
+        resumenTotal.textContent = `$${total.toFixed(2)}`;
+    });
+</script>
+{% endblock %}

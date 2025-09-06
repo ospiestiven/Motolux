@@ -1,0 +1,48 @@
+{% extends 'tienda/index/base1.html' %}
+{% load static %}
+
+{% block title %}{{ producto.nombre }} - Motolux{% endblock %}
+
+{% block content %}
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Columna de la imagen del producto -->
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card">
+                <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+            </div>
+        </div>
+
+        <!-- Columna de los detalles del producto -->
+        <div class="col-md-6">
+            <h1>{{ producto.nombre }}</h1>
+            <p class="lead text-muted">
+                {% if producto.categoria %}
+                Categoría: <a href="{% url 'productos_por_categoria' producto.categoria.id %}">{{
+                    producto.categoria.nombre }}</a>
+                {% endif %}
+            </p>
+
+            <h2 class="precio my-3">${{ producto.precio }}</h2>
+
+            <p class="card-text">{{ producto.descripcion|linebreaks }}</p>
+
+            {% if producto.stock > 0 %}
+            <p class="text-success">En stock ({{ producto.stock }} disponibles)</p>
+            {% else %}
+            <p class="text-danger">Agotado</p>
+            {% endif %}
+
+            <div class="d-grid gap-2 my-4">
+                                <button class="btn btn-danger btn-lg add-to-cart" data-id="{{ producto.id }}"
+                    data-name="{{ producto.nombre }}" data-price="{{ producto.precio }}"
+                    data-image="{{ producto.imagen.url }}" {% if not producto.stock > 0 %}disabled{% endif %}>
+                    <i class="bi bi-cart2"></i> Añadir al carrito
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

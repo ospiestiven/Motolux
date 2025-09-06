@@ -1,0 +1,124 @@
+{% extends 'tienda/index/base1.html' %}
+{% load static %}
+{% block title %}Inicio - Motolux{% endblock %}
+
+
+{% block content %}
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger py-2  categorias">
+  <div class="container">
+    <ul class="navbar-nav mx-auto flex-row">
+      {% for categoria in categorias %}
+      <li class="nav-item mx-2">
+        <a class="nav-link" href="{% url 'productos_por_categoria' categoria.id %}">
+          {{ categoria.nombre }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</nav>
+
+
+
+<!-- carrosel -->
+<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000">
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img class="d-block w-100" src="{% static 'img/inicio2.png' %}" alt="First slide" style="height: 600px; object-fit: cover;">
+    </div>
+    <div class="carousel-item">
+      <img class="d-block w-100" src="{% static 'img/img1.jpg' %}" alt="Second slide" style="height: 600px; object-fit: cover;">
+    </div>
+    <div class="carousel-item">
+      <img class="d-block w-100" src="{% static 'img/img2.jpg' %}" alt="Third slide" style="height: 600px; object-fit: cover;">
+    </div>
+  </div>
+  <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </a>
+  <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </a>
+</div>
+
+
+
+
+
+<!-- CATÁLOGO DE PRODUCTOS -->
+<div class="titulo-principal mt-5 text-center">
+  <h1 class="display-5 fw-bold text-danger">ACCESORIOS PARA MOTOS</h1>
+</div>
+<div class="titulo-catalogo mb-4 text-center">
+  <h2 class="h4 text-secondary">Productos Destacados</h2>
+</div>
+<div class="container my-5 catalogo">
+  <div class="row productos-container">
+    {% for producto in productos %}
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 d-flex align-items-stretch">
+      <div class="card producto w-100">
+        <a href="{% url 'producto_detalle' producto.id %}">
+          <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+        </a>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">
+            <a href="{% url 'producto_detalle' producto.id %}" class="text-dark text-decoration-none">{{ producto.nombre }}</a>
+          </h5>
+          <p class="card-text">{{ producto.descripcion }}</p>
+          <p class="precio mt-auto">${{ producto.precio }}</p>
+          <button class="btn btn-danger w-100 mt-2 add-to-cart" data-id="{{ producto.id }}" data-name="{{ producto.nombre }}"
+            data-price="{{ producto.precio }}" data-image="{{ producto.imagen.url }}">
+            <i class="bi bi-cart2"></i> Añadir al carrito
+          </button>
+
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+
+<footer class="bg-dark text-light pt-4 pb-2">
+  <div class="container">
+    <div class="row text-center text-md-start">
+      <div class="col-md-4 mb-4 mb-md-0">
+        <h3 class="text-danger border-bottom pb-2 mb-3" style="border-color:#DD0B15 !important;">Contáctenos</h3>
+        <p>📍 Calle 41 No. 85a 24 Lotus, Rionegro, Colombia</p>
+        <p>📞 (555) 123-4567</p>
+        <p>✉️ restaurante@gmail.com</p>
+      </div>
+      <div class="col-md-4 mb-4 mb-md-0">
+        <h3 class="text-danger border-bottom pb-2 mb-3" style="border-color:#DD0B15 !important;">Horario</h3>
+        <p>Lunes - Viernes: 11:00 AM - 10:00 PM</p>
+        <p>Sábados y Domingos: 10:00 AM - 11:00 PM</p>
+      </div>
+      <div class="col-md-4">
+        <h3 class="text-danger border-bottom pb-2 mb-3" style="border-color:#DD0B15 !important;">Síguenos</h3>
+        <div class="d-flex justify-content-md-end justify-content-center gap-2 redes">
+          <a href="#" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+            style="width:36px; height:36px;">FB</a>
+          <a href="#" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+            style="width:36px; height:36px;">IN</a>
+          <a href="#" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+            style="width:36px; height:36px;">TW</a>
+          <a href="#" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+            style="width:36px; height:36px;">TK</a>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-4 copyright pt-3 border-top border-secondary">
+      <p class="mb-0">© 2025 Tu Restaurante. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
+
+
+
+
+{% endblock %}

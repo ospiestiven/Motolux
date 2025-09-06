@@ -1,0 +1,37 @@
+{% extends "tienda/admin/layouts/base.html" %}
+{% load static %}
+{% block title %}Agregar Usuario - Motolux{% endblock %}
+
+{% block content %}
+{% include 'tienda/admin/includes/sidebar.html' %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div>
+        <h2 class="h4">Agregar Usuario</h2>
+        <p class="mb-0">Completa el formulario para agregar un nuevo usuario.</p>
+    </div>
+    <div>
+        <a href="{% url 'usuarios' %}" class="btn btn-sm btn-outline-secondary">Volver a Usuarios</a>
+    </div>
+</div>
+
+<div class="card card-body border-0 shadow table-wrapper">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-info">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in formulario %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                <div class="text-danger small">{{ field.errors }}</div>
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Agregar Usuario</button>
+    </form>
+</div>
+{% endblock %}

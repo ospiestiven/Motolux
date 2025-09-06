@@ -1,0 +1,182 @@
+{% extends "tienda/admin/layouts/base.html" %}
+{% load static %}
+{% block title %}Productos - Motolux{% endblock %}
+
+{% block content %}
+{% include 'tienda/admin/includes/sidebar.html' %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div>
+        <h2 class="h4">Productos</h2>
+        <p class="mb-0">Gestión de productos en inventario.</p>
+    </div>
+    <div>
+        <button type="button"
+            class="btn btn-sm btn-gray-800 d-inline-flex align-items-center"
+            data-bs-toggle="modal"
+            data-bs-target="#agregarProductoModal">
+            <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            Agregar Producto
+        </button>
+        <!-- Modal Agregar Producto -->
+        <!-- Modal Agregar Producto -->
+        <div class="modal fade" id="agregarProductoModal" tabindex="-1" aria-labelledby="agregarProductoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="agregarProductoLabel">Agregar Producto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            {% for field in formulario %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                <div class="text-danger small">{{ field.errors }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Agregar Producto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="card card-body border-0 shadow table-wrapper table-responsive">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th class="border-gray-200">ID</th>
+                <th class="border-gray-200">Nombre</th>
+                <th class="border-gray-200">Imagen</th>
+                <th class="border-gray-200">Precio</th>
+                <th class="border-gray-200">Stock</th>
+                <th class="border-gray-200">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.id }}</td>
+                <td>{{ producto.nombre }}</td>
+                <td>
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" width="60" class="img-thumbnail" alt="{{ producto.nombre }}">
+                    {% else %}
+                        <span class="text-muted">Sin imagen</span>
+                    {% endif %}
+                </td>
+                <td>${{ producto.precio }}</td>
+                <td>{{ producto.stock }}</td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editarProductoModal{{ producto.id }}">
+                            Editar
+                        </button>
+
+                        <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#eliminarProductoModal{{ producto.id }}">
+                            Eliminar
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <!-- Modal para eliminar producto -->
+            <div class="modal fade" id="eliminarProductoModal{{ producto.id }}" tabindex="-1" aria-labelledby="eliminarProductoLabel{{ producto.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                    <form method="post" action="{% url 'eliminar_producto' producto.id %}">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="eliminarProductoLabel{{ producto.id }}">¿Eliminar producto?</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                        ¿Estás seguro de que deseas eliminar <strong>{{ producto.nombre }}</strong>?
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal para editar -->
+            <div class="modal fade" id="editarProductoModal{{ producto.id }}" tabindex="-1"                         aria-labelledby="editarProductoLabel{{ producto.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form action="{% url 'editar_producto' producto.id %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editarProductoLabel{{ producto.id }}">Editar Producto</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre</label>
+                                    <input type="text" name="nombre" class="form-control" value="{{ producto.nombre }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Descripcion</label>
+                                    <textarea name="descripcion" class="form-control" rows="3">{{ producto.descripcion }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Precio (sin comas ni puntos)</label>
+                                    <input type="number" name="precio" class="form-control" value="{{ producto.precio }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Stock</label>
+                                    <input type="number" name="stock" class="form-control" value="{{ producto.stock }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Imagen</label>
+                                    <input type="file" name="imagen" class="form-control">
+                                    {% if producto.imagen %}
+                                    <img src="{{ producto.imagen.url }}" width="60" class="img-thumbnail mt-2" alt="{{ producto.nombre }}">
+                                    {% endif %}
+                                </div>
+                                <!-- Agrega más campos según tu modelo si es necesario -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No hay productos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

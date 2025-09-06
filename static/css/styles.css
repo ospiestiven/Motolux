@@ -1,0 +1,250 @@
+html, body {
+    background-color: #f8f9fa;
+    font-family: kanit;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    
+    
+}
+/*btn de login*/
+.btn_login, .btn_signup{
+    background-color: #DD0B15;
+    color: #fff;
+}
+.btn_login:hover, .btn_signup:hover{
+    background-color: #B00911;
+    
+    color: #fff;
+    /* Mantener el texto blanco */
+}
+/* Estilos  del header en base  */
+
+.header {
+    background-color: #2A2A2A;
+    color: #d4c8c8;
+    position: sticky;
+    z-index: 100;
+    top: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-lista {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: sticky    ;
+    margin: 0;
+    padding: 15px ;
+}
+
+.nav-item {
+    margin: 0 15px;
+}
+
+
+.nav-link {
+    text-decoration: none;
+    color: #d8d1d1;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: #05cbf3;
+}
+
+.logo {
+    height: 50px;
+    width: auto;
+}
+/* Estilos de index */
+
+
+.titulo-principal {
+    text-align: left;
+    margin: auto;
+    font-weight: bold;
+    font-size: 20px;
+    color: #333;
+}
+
+.categorias {
+    background-color: #DD0B15 !important; /* Usa !important para asegurar tu color */
+    width: 100%;
+    padding: 10px 0; 
+    /* Elimina text-align, color, font-weight aquí, Bootstrap lo maneja */
+}
+
+.categorias .nav-link {
+    color: #fff !important;
+    font-weight: bold;
+    border-radius: 4px;
+    border-bottom: 3px solid transparent;
+    transition: background 0.3s, color 0.3s, border-bottom 0.3s;
+}
+
+.categorias .nav-link:hover,
+.categorias .nav-link:focus {
+    background: #fff !important;
+    color: #DD0B15 !important;
+    border-bottom: 3px solid #DD0B15;
+    text-decoration: none;
+}
+/*carousel*/
+
+
+
+/* Estilos para el catálogo */
+.catalogo {
+    width: 90%;
+    min-height: calc(100vh - 150px);
+    
+    
+}
+
+
+.titulo-catalogo {
+    text-align: center;
+    color: #333;
+    right: 50px;
+    top: 50px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+
+
+
+.producto img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.producto h3 {
+    margin: 10px 0;
+    color: #222;
+}
+
+.precio {
+    font-weight: bold;
+    color: #e63946;
+    font-size: 1.1em;
+    margin: 10px 0;
+}
+
+.producto button {
+    background-color: #DD0B15;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.producto button:hover {
+    background-color:#fb000d;
+}
+
+
+/* formularios */
+
+
+
+/* Estilos para el formulario de login */
+
+
+/* Estilos para el formulario para crear una cuenta */
+.terminos {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.terminos input {
+    margin-right: 400px;
+}
+
+.terminos label {
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Estilos para el footer */
+footer {
+    background-color: #0a0d0e;
+    color: #f5f5f5;
+    padding: 20px 0 10px;
+    width: 100%;
+    margin: 0; 
+    box-sizing: border-box;
+}
+  
+
+  
+
+  
+footer h3 {
+    color: #DD0B15;
+    font-size: 18px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #DD0B15;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+  
+footer p {
+    margin: 5px 0;
+    color: #cccccc;
+}
+  
+.redes {
+    margin-top: 10px;
+}
+  
+.redes a {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    background-color: #1e2224;
+    color: white;
+    text-align: center;
+    line-height: 36px;
+    text-decoration: none;
+    border-radius: 50%;
+    font-weight: bold;
+    margin-right: 10px;
+}
+  
+.redes a:hover {
+    background-color: #DD0B15 !important;
+}
+  
+.copyright {
+    text-align: center;
+    padding-top: 15px;
+    margin-top: 15px;
+    border-top: 1px solid #222;
+}
+  
+  /* Para alinear las secciones */
+.contacto {
+    text-align: left;
+}
+  
+.horario {
+    text-align: center;
+}
+  
+.redes-sociales {
+    text-align: right;
+}

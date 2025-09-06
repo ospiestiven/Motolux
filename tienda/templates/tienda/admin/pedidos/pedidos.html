@@ -1,0 +1,94 @@
+{% extends "tienda/admin/layouts/base.html" %}
+{% load static %}
+{% block title %}Pedidos - Motolux{% endblock %}
+
+{% block content %}
+{% include 'tienda/admin/includes/sidebar.html' %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div>
+        <h2 class="h4">Pedidos</h2>
+        <p class="mb-0">Gestión de pedidos registrados.</p>
+    </div>
+    <div>
+        <a href="{% url 'index_admin' %}" class="btn btn-outline-primary">
+            <span class="me-2"><i class="bi bi-arrow-left"></i></span> Volver al Inicio
+        </a>
+    </div>
+</div>
+<div class="card card-body border-0 shadow table-wrapper table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pedido in pedidos %}
+            <tr>
+                <td>{{ pedido.id }}</td>
+                <td>{{ pedido.usuario.nombre_completo }}</td>
+                <td>{{ pedido.fecha|date:"d/m/Y" }}</td>
+                <td>${{ pedido.total }}</td>
+                <td>
+                    <span class="badge {% if pedido.estado == 'Entregado' %}bg-success{% else %}bg-secondary{% endif %}">
+                        {{ pedido.estado }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{% url 'pedido_detalle' pedido.id %}" class="btn btn-outline-danger btn-sm">Ver</a>
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No hay pedidos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- models carritoproductopedido -->
+    <div class="card card-body border-0 shadow table-wrapper table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Pedido</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for carrito in carritos %}
+                <tr>
+                    <td>{{ carrito.id }}</td>
+                    <td>{{ carrito.pedido.id }}</td>
+                    <td>{{ carrito.producto.nombre }}</td>
+                    <td>{{ carrito.cantidad }}</td>
+                    <td>${{ carrito.total }}</td>
+                    <td>
+                        <a href="" class="btn btn-outline-danger btn-sm">Ver</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No hay pedidos registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>  
+
+
+
+    
+{% endblock %}

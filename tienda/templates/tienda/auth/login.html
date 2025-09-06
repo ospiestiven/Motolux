@@ -1,0 +1,52 @@
+{% extends 'tienda/index/base1.html' %}
+{% load static %}
+
+{% block content %}
+{% if messages %}
+<ul class="messages">
+  {% for message in messages %}
+  <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+    <div class="text-center mb-4">
+      <h2 class="fw-bold text-danger">Motolux</h2>
+      <h5 class="mb-0 text-secondary">Iniciar Sesión</h5>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="email" class="form-label">Iniciar Sesión: </label>
+        <input type="email" id="email" name="email" class="form-control" required placeholder="usuario o correo electrónico">
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Contraseña: </label>
+        <input type="password" id="password" name="password" class="form-control" required
+          placeholder="Ingresa tu contraseña">
+      </div>
+      <button type="submit" class="btn w-100" style="background-color: #DD0B15; color: #fff;">Iniciar Sesión</button>
+      <div class="d-flex justify-content-between mt-3">
+        <a href="{% url 'index' %}" class="link-secondary small">¿Olvidaste tu contraseña?</a>
+        <a href="{% url 'crear_cuenta' %}" class="link-danger small">Regístrate</a>
+      </div>
+    </form>
+
+    <!-- Separador -->
+    <div class="text-center my-3">
+      <span class="text-muted">o</span>
+    </div>
+
+    <!-- Botón de Google -->
+    <a href=""
+      class="btn btn-outline-dark w-100 d-flex align-items-center justify-content-center">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20" class="me-2">
+      Continuar con Google
+    </a>
+  </div>
+</div>
+{% endblock %}
+

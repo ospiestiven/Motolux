@@ -1,0 +1,57 @@
+{% extends "tienda/admin/layouts/base.html" %}
+{% block title %}Inicio - Motolux{% endblock %}
+{% load static %}
+
+{% block content %}
+{% include 'tienda/admin/includes/sidebar.html' %}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4 mb-4">Bienvenido al apartado de administración</h1>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="mb-2">
+                        <svg class="icon icon-lg text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="40" height="40"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v4a1 1 0 001 1h3v9a1 1 0 001 1h6a1 1 0 001-1v-9h3a1 1 0 001-1V7a1 1 0 00-1-1H4a1 1 0 00-1 1z" /></svg>
+                    </div>
+                    <h2 class="h3 mb-1">{{ total_productos }}</h2>
+                    <p class="mb-0">Productos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="mb-2">
+                        <svg class="icon icon-lg text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="40" height="40"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-4a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    </div>
+                    <h2 class="h3 mb-1">{{ total_usuarios }}</h2>
+                    <p class="mb-0">Usuarios</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="mb-2">
+                        <svg class="icon icon-lg text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="40" height="40"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+                    </div>
+                    <h2 class="h3 mb-1">{{ total_categorias }}</h2>
+                    <p class="mb-0">Categorías</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="mb-2">
+                        <svg class="icon icon-lg text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="40" height="40"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    </div>
+                    <h2 class="h3 mb-1">{{ total_pedidos }}</h2>
+                    <p class="mb-0">Pedidos</p>
+                </div>
+            </div>
+            
+    </div>
+</div>
+{% endblock %}

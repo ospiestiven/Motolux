@@ -1,0 +1,85 @@
+{% extends "tienda/admin/layouts/base.html" %}
+{% load static %}
+
+{% block title %}Detalle Pedido #{{ pedido.id }} - Motolux{% endblock %}
+
+{% block content %}
+{% include 'tienda/admin/includes/sidebar.html' %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div>
+        <h2 class="h4">Detalle Pedido #{{ pedido.id }}</h2>
+        <p class="mb-0">Información completa del pedido.</p>
+    </div>
+    <div>
+        <a href="{% url 'pedidos' %}" class="btn btn-outline-primary">
+            <span class="me-2"><i class="bi bi-arrow-left"></i></span> Volver a Pedidos
+        </a>
+    </div>
+</div>
+
+<!-- Información general del pedido -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <h5 class="fw-bold text-danger">Información del Pedido</h5>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <p><strong>Cliente:</strong> {{ pedido.usuario.nombre_completo }}</p>
+                
+                <p><strong>Correo:</strong> {{ pedido.usuario.correo_electronico }}</p>
+                <p><strong>Teléfono:</strong> {{ pedido.usuario.telefono }}</p>
+                <p><strong>Dirección:</strong> {{ pedido.usuario.direccion }}, {{ pedido.usuario.ciudad }}, {{ pedido.usuario.departamento }}</p>
+
+            </div>
+            <div class="col-md-6">
+                <p><strong>Fecha:</strong> {{ pedido.fecha|date:"d/m/Y H:i" }}</p>
+                <p><strong>Método de Pago:</strong> {{ pedido.metodo_pago.tipo }}</p>
+                <p>
+                    <strong>Estado:</strong>
+                    <span
+                        class="badge {% if pedido.estado == 'Entregado' %}bg-success{% elif pedido.estado == 'Pendiente' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                        {{ pedido.estado }}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Productos del pedido -->
+<div class="card shadow">
+    <div class="card-body">
+        <h5 class="fw-bold text-danger">Productos del Pedido</h5>
+        <div class="table-responsive mt-3">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Imagen</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in carritos %}
+                    <tr>
+                        <td>{{ item.producto.nombre }}</td>
+                        <td>
+                            <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" class="rounded"
+                                style="width:60px; height:60px; object-fit:cover;">
+                        </td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>${{ item.producto.precio }}</td>
+                        <td class="fw-bold text-danger">${{ item.total }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-end mt-3">
+            <h4>Total del Pedido: <span class="text-danger">${{ pedido.total }}</span></h4>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'tienda/index/base1.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+    <div class="card shadow p-4" style="max-width: 430px; width: 100%;">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-danger">Motolux</h2>
+            <h5 class="mb-0 text-secondary">Crear Cuenta</h5>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {% for message in messages %}
+            <div class="alert alert-danger py-1 mb-2 small text-center">{{ message }}</div>
+            {% endfor %}
+            <div class="mb-3">
+                <label for="nombre_completo" class="form-label">Nombre completo</label>
+                <input type="text" id="nombre_completo" name="nombre_completo" class="form-control" required
+                    placeholder="Nombre completo">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" id="email" name="email" class="form-control" required
+                    placeholder="usuario@ejemplo.com">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" id="password" name="password" class="form-control" required
+                    placeholder="Crea tu contraseña">
+            </div>
+            <div class="mb-3">
+                <label for="confirm-password" class="form-label">Confirmar Contraseña</label>
+                <input type="password" id="confirm-password" name="confirm-password" class="form-control" required
+                    placeholder="Repite tu contraseña">
+            </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" id="terminos" name="terminos" class="form-check-input" required>
+                <label for="terminos" class="form-check-label">Acepto términos y condiciones</label>
+            </div>
+            <button type="submit" class="btn w-100" style="background-color: #DD0B15; color: #fff;">Crear
+                Cuenta</button>
+
+            <!-- loguearse con goggle -->
+             
+            <div class="text-center mt-3">
+                <span class="small">¿Ya tienes una cuenta? <a href="{% url 'login' %}" class="link-danger">Iniciar
+                        Sesión</a></span>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
