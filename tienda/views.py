@@ -209,14 +209,12 @@ def perfil(request):
 
 
 # plantilla
-def navigator(request):
-    return render(request, 'tienda/admin/home/index.html')
-
-def settings_box(request):
-    return render(request, 'tienda/admin/includes/settings-box.html')
+def tablas_bootstrap(request):
+    return render(request, 'tienda/admin/home/tables-bootstrap-tables.html')
 
 def transactions(request):
     return render(request, 'tienda/admin/home/transactions.html')
+
 
 
 # Detalles de facturación

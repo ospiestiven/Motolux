@@ -62,9 +62,10 @@ urlpatterns = [
 
     
     #plantilla
-    path('navigator/', views.navigator, name='navigator'),
-    path('settings-box/', views.settings_box, name='settings_box'),
+    path('tablas-bootstrap-tables/', views.tablas_bootstrap, name='tablas_bootstrap'),
     path('transactions/', views.transactions, name='transactions'),
+   
+    
     
     
     
