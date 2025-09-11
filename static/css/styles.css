@@ -156,13 +156,6 @@ html, body {
 }
 
 
-/* formularios */
-
-
-
-/* Estilos para el formulario de login */
-
-
 /* Estilos para el formulario para crear una cuenta */
 .terminos {
     display: flex;
@@ -188,11 +181,7 @@ footer {
     margin: 0; 
     box-sizing: border-box;
 }
-  
 
-  
-
-  
 footer h3 {
     color: #DD0B15;
     font-size: 18px;
@@ -247,4 +236,17 @@ footer p {
   
 .redes-sociales {
     text-align: right;
+}
+
+/*para el allauth de cambiar password*/
+/* Aplica a todos los inputs dentro de un card */
+.card input[type="email"],
+.card input[type="text"],
+.card input[type="password"] {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: .5rem;
+    border-radius: .375rem;
+    border: 1px solid #ced4da;
+    font-size: 1rem;
 }

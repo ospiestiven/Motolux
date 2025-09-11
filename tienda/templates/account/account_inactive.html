@@ -1,14 +1,22 @@
-{% extends "allauth/layouts/entrance.html" %}
+{% extends "tienda/index/base1.html" %}
 {% load i18n %}
-{% load allauth %}
 {% block head_title %}
-    {% translate "Account Inactive" %}
+{% trans "Cuenta Inactiva" %}
 {% endblock head_title %}
 {% block content %}
-    {% element h1 %}
-        {% translate "Account Inactive" %}
-    {% endelement %}
-    {% element p %}
-        {% translate "This account is inactive." %}
-    {% endelement %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+        <div class="text-center mb-3">
+            <h2 class="fw-bold text-danger mb-0">Motolux</h2>
+            <h5 class="mb-0 text-secondary">{% trans "Cuenta Inactiva" %}</h5>
+        </div>
+        <div class="alert alert-warning text-center mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {% trans "Esta cuenta está inactiva." %}
+        </div>
+        <p class="text-muted text-center mb-2">{% trans "Si crees que esto es un error, por favor contáctanos para más
+            información o soporte." %}</p>
+        <a href="{% url 'index' %}" class="btn btn-outline-danger w-100 mt-3">{% trans "Volver al inicio" %}</a>
+    </div>
+</div>
 {% endblock content %}

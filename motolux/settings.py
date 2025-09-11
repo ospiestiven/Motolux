@@ -174,4 +174,4 @@ ACCOUNT_UNIQUE_EMAIL = True
 
 # ACCOUNT_EMAIL_VERIFICATION = "mandatory" # verificar el email
 
-ACCOUNT_LOGOUT_ON_GET = True # para cerrar sesion sin preguntar
+ACCOUNT_LOGOUT_ON_GET = False # para cerrar sesion sin preguntar

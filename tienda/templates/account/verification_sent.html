@@ -1,14 +1,30 @@
 {% extends "tienda/index/base1.html" %}
 {% load i18n %}
-{% load allauth %}
 {% block head_title %}
-    {% trans "Verify Your Email Address" %}
+{% trans "Verifica tu correo electrónico" %}
 {% endblock head_title %}
 {% block content %}
-    {% element h1 %}
-        {% trans "Verify Your Email Address" %}
-    {% endelement %}
-    {% element p %}
-        {% blocktrans %}We have sent an email to you for verification. Follow the link provided to finalize the signup process. If you do not see the verification email in your main inbox, check your spam folder. Please contact us if you do not receive the verification email within a few minutes.{% endblocktrans %}
-    {% endelement %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow p-4" style="max-width: 430px; width: 100%;">
+        <div class="text-center mb-3">
+            <h2 class="fw-bold text-danger mb-0">Motolux</h2>
+            <h5 class="mb-0 text-secondary">{% trans "Verifica tu correo electrónico" %}</h5>
+        </div>
+        <div class="alert alert-info text-center mb-3" role="alert">
+            <i class="bi bi-envelope-paper-fill me-2"></i>
+            {% blocktrans %}Te hemos enviado un correo para verificar tu dirección. Sigue el enlace que contiene para
+            finalizar el registro.{% endblocktrans %}
+        </div>
+        <p class="mb-2 text-muted small">
+            {% blocktrans %}Si no ves el correo en tu bandeja de entrada, revisa la carpeta de spam o correo no
+            deseado.{% endblocktrans %}
+        </p>
+        <p class="mb-2 text-muted small">
+            {% blocktrans %}Por favor, contáctanos si no recibes el correo de verificación en unos minutos. {% endblocktrans %}
+        </p>
+        <a href="{% url 'account_login' %}" class="btn btn-outline-danger w-100 mt-3">
+            {% trans "Volver al inicio de sesión" %}
+        </a>
+    </div>
+</div>
 {% endblock content %}
