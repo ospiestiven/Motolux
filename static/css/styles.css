@@ -27,26 +27,16 @@ html, body {
     position: sticky;
     z-index: 100;
     top: 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     width: 100%;
     margin: 0;
     padding: 0;
 }
 
-.nav-lista {
-    list-style: none;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    position: sticky    ;
-    margin: 0;
-    padding: 15px ;
+.navbar-brand .logo {
+    height: 50px;
+    width: auto;
 }
-
-.nav-item {
-    margin: 0 15px;
-}
-
 
 .nav-link {
     text-decoration: none;
@@ -59,9 +49,8 @@ html, body {
     color: #05cbf3;
 }
 
-.logo {
-    height: 50px;
-    width: auto;
+.search-form {
+    max-width: 100%;
 }
 /* Estilos de index */
 
