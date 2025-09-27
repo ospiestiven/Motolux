@@ -12,6 +12,9 @@ urlpatterns = [
     #detalle producto
     path('producto/<int:producto_id>/', views.producto_detalle, name='producto_detalle'),
     
+     #catalogo
+     path('catalogo/', views.catalogo, name='catalogo'),
+    
     #google login
     path('accounts/', include('allauth.urls')),
     

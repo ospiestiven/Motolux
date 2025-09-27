@@ -9,6 +9,7 @@ from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q # Utilizado para filtrar productos por nombre, descripción o categoría
 
 
 
@@ -41,6 +42,18 @@ def crear_cuenta(request):
 
 def detalles_facturacion(request):
     return render(request, 'tienda/detalles_factura.html')
+
+#catalogo
+def catalogo(request):
+    query = request.GET.get('q', '')
+    productos = Producto.objects.all()
+    if query:
+        productos = productos.filter(
+            Q(nombre__icontains=query) |
+            Q(descripcion__icontains=query) |
+            Q(categoria__nombre__icontains=query)
+        )
+    return render(request, 'tienda/index/catalogo.html', {'productos': productos, 'query': query})
 
 
 
