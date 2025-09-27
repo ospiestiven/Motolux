@@ -10,6 +10,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 
@@ -76,7 +79,7 @@
     <!-- Carrito Offcanvas -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="carritoOffcanvas" aria-labelledby="carritoOffcanvasLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="carritoOffcanvasLabel">🛒 Mi Carrito</h5>
+            <h5 class="offcanvas-title" id="carritoOffcanvasLabel"><i class="bi bi-cart2"></i> Mi Carrito</h5>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body" id="cart-items">
