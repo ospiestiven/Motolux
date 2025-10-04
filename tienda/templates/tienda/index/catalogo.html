@@ -5,18 +5,7 @@
 
 {% block content %}
 
-<!-- Barra de búsqueda (puedes incluirla aquí si no está en el header) -->
-<div class="container mt-4">
-    <form action="{% url 'catalogo' %}" method="get" class="search-form d-flex justify-content-center mb-4">
-        <div class="input-group" style="max-width: 350px;">
-            <input class="form-control" type="search" name="q" placeholder="Buscar productos..." aria-label="Buscar"
-                value="{{ query|default:'' }}">
-            <button class="btn btn-outline-danger" type="submit">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-    </form>
-</div>
+
 
 <!-- Título -->
 <div class="titulo-principal mt-4 text-center">
