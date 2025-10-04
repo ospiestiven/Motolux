@@ -1,7 +1,7 @@
 
 
 from django.contrib import admin
-from .models import Categoria, Producto, Rol, MetodoPago, Usuario, Pedido, CarritoProductoPedido
+from .models import Categoria, Producto, Rol,  Usuario, Pedido, CarritoProductoPedido
 
 # Personalización del modelo Categoria
 @admin.register(Categoria)
@@ -25,11 +25,7 @@ class RolAdmin(admin.ModelAdmin):
     search_fields = ('nombre',)
 
 
-# Personalización del modelo MetodoPago
-@admin.register(MetodoPago)
-class MetodoPagoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'tipo')
-    search_fields = ('tipo',)
+
 
 
 # Personalización del modelo Usuario
@@ -48,9 +44,9 @@ class UsuarioAdmin(admin.ModelAdmin):
 # Personalización del modelo Pedido
 @admin.register(Pedido)
 class PedidoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'usuario', 'metodo_pago', 'fecha', 'total')
-    list_filter = ('metodo_pago', 'fecha')  # Agregar filtros por método de pago y fecha
-    search_fields = ('usuario__nombre_completo',)  # Búsqueda por nombre del usuario
+    list_display = ('id', 'usuario', 'fecha', 'total', 'estado')
+    list_filter = ('estado', 'fecha')
+    search_fields = ('usuario__user__username', 'usuario__user__email')  # Búsqueda por nombre de usuario o email
 
 
 # Personalización del modelo CarritoProductoPedido

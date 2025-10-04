@@ -1,15 +1,157 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-
-from .models import Producto, Rol, MetodoPago, Categoria, Usuario, Pedido, CarritoProductoPedido
-from django.contrib.auth.hashers import make_password
-from .forms import ProductoForm, categoriaForm, UsuarioForm
-from django.contrib.auth.hashers import check_password
-from django.http import JsonResponse
-import json
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q # Utilizado para filtrar productos por nombre, descripción o categoría
+from django.conf import settings
+import json
+from decimal import Decimal
+from django.db import transaction
+import time 
+from .models import Producto, Rol, Categoria, Usuario, Pedido, CarritoProductoPedido, Transaccion
+from .forms import ProductoForm, categoriaForm, UsuarioForm
+from .utils import generate_payment_signature, generate_confirmation_signature  # ✅ importamos desde utils
+
+
+# --------------------------
+# VISTAS PAYU
+# --------------------------
+
+@login_required
+def payu_checkout(request, pedido_id):
+    """
+    Genera el formulario para PayU WebCheckout (modo sandbox).
+    """
+    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user.perfil)
+
+    # 1. Creamos una descripción detallada con los nombres de los productos
+    nombres_productos = ", ".join([item.producto.nombre for item in pedido.carritos.all()])
+    descripcion_pago = f"Compra en Motolux: {nombres_productos}"
+
+    
+    reference_code = f"MOTO-{pedido.id}"
+
+    
+    # PayU es muy estricto con el formato del monto.
+    # Para COP, PayU espera dos decimales. Forzamos este formato.
+    amount = "{:.2f}".format(Decimal(pedido.total))
+    currency = settings.PAYU_CURRENCY
+
+    signature = generate_payment_signature(
+        settings.PAYU_API_KEY,
+        settings.PAYU_MERCHANT_ID,
+        reference_code,
+        amount,
+        currency,
+        secret_key=getattr(settings, "PAYU_SECRET_KEY", None)
+    )
+
+    action_url = settings.PAYU_SANDBOX_URL if settings.PAYU_USE_SANDBOX else settings.PAYU_PROD_URL
+
+    form_html = f"""
+    <html><body>
+      <h3>Redirigiendo a PayU (PRUEBAS)…</h3>
+      <form id="payuForm" method="post" action="{action_url}">
+        <input name="merchantId" type="hidden" value="{settings.PAYU_MERCHANT_ID}" />
+        <input name="accountId" type="hidden" value="{settings.PAYU_ACCOUNT_ID}" />
+        <input name="description" type="hidden" value="{descripcion_pago}" />
+        <input name="referenceCode" type="hidden" value="{reference_code}" />
+        <input name="amount" type="hidden" value="{amount}" />
+        <input name="currency" type="hidden" value="{currency}" />
+        <input name="signature" type="hidden" value="{signature}" />
+        <input name="test" type="hidden" value="1" />
+        <!-- 2. Añadimos el nombre completo del comprador -->
+        <input name="buyerFullName" type="hidden" value="{request.user.get_full_name()}" />
+        <input name="buyerEmail" type="hidden" value="{request.user.email}" />
+        <input name="responseUrl" type="hidden" value="{settings.PAYU_RESPONSE_URL}" />
+        <input name="confirmationUrl" type="hidden" value="{settings.PAYU_CONFIRMATION_URL}" />
+      </form>
+      <script>document.getElementById('payuForm').submit();</script>
+    </body></html>
+    """
+    return HttpResponse(form_html)
+
+
+@csrf_exempt
+def payu_confirmation(request):
+    """
+    Webhook de PayU: actualiza estado del pedido.
+    """
+    data = request.POST.dict()
+    merchant_id = data.get("merchant_id")
+    reference_sale = data.get("reference_sale")   # Ej: "MOTO-19"
+    value = data.get("value")
+    currency = data.get("currency")
+    state_pol = data.get("state_pol")
+    sign_received = data.get("sign")
+
+    # Generar la firma esperada (con HMAC-SHA256 en confirmation)
+    expected_sign = generate_confirmation_signature(
+        settings.PAYU_API_KEY,
+        merchant_id,
+        reference_sale,
+        value,
+        currency,
+        state_pol,
+        secret_key=getattr(settings, "PAYU_SECRET_KEY", None)
+    )
+
+    if expected_sign == sign_received:
+        try:
+            # La referencia ahora es "MOTO-{pedido_id}"
+            pedido_id = int(reference_sale.split("-")[1])
+            pedido = Pedido.objects.filter(id=pedido_id).first()
+
+            # Guardamos o actualizamos la transacción
+            Transaccion.objects.update_or_create(
+                id_transaccion_payu=data.get("transaction_id"),
+                defaults={
+                    'pedido': pedido,
+                    'estado_pol': state_pol,
+                    'mensaje_respuesta': data.get("response_message_pol"),
+                    'metodo_pago_nombre': data.get("payment_method_name"),
+                    'valor': Decimal(value),
+                    'moneda': currency,
+                }
+            )
+
+
+            if pedido:
+                if state_pol == "4" and pedido.estado == 'Pendiente':  # Pago APROBADO y pedido aún pendiente
+                    with transaction.atomic():
+                        # 1. Actualizar el estado del pedido
+                        pedido.estado = "Procesando"
+                        pedido.save()
+
+                        # 2. Descontar el stock de cada producto en el pedido
+                        for item_carrito in pedido.carritos.all():
+                            producto = item_carrito.producto
+                            # Restamos la cantidad comprada del stock del producto
+                            producto.stock -= item_carrito.cantidad
+                            producto.save()
+
+                elif state_pol in ["5", "6"]:  # expirado o rechazado
+                    if pedido.estado == 'Pendiente':
+                        pedido.estado = "Cancelado"
+                        pedido.save()
+        except Exception as e:
+            # Es buena práctica registrar el error
+            print("Error procesando confirmation:", e)
+
+        return HttpResponse("OK")
+
+    return HttpResponse("Invalid signature", status=400)
+
+
+
+@csrf_exempt
+def payu_response(request):
+    """
+    Vista visible al usuario tras pagar en PayU.
+    """
+    params = request.POST.dict() if request.method == "POST" else request.GET.dict()
+    state_pol = params.get("state_pol")
+    return render(request, "tienda/payu_response.html", {"params": params, "state_pol": state_pol})
 
 
 
@@ -37,13 +179,12 @@ def producto_detalle(request, producto_id):
     return render(request, 'tienda/index/producto_detalle.html', {'producto': producto})
 
 
-def crear_cuenta(request):
-    return render(request, 'tienda/auth/crear_cuenta.html')
 
 def detalles_facturacion(request):
     return render(request, 'tienda/detalles_factura.html')
 
 #catalogo
+from django.db.models import Q
 def catalogo(request):
     query = request.GET.get('q', '')
     productos = Producto.objects.all()
@@ -223,10 +364,11 @@ def perfil(request):
 
 # plantilla
 def tablas_bootstrap(request):
-    return render(request, 'tienda/admin/home/tables-bootstrap-tables.html')
+    return render(request, 'tienda/admin/pedidos/tables-bootstrap-tables.html')
 
 def transactions(request):
-    return render(request, 'tienda/admin/home/transactions.html')
+    lista_transacciones = Transaccion.objects.select_related('pedido__usuario__user').order_by('-fecha')
+    return render(request, 'tienda/admin/pedidos/transactions.html', {'transacciones': lista_transacciones})
 
 
 
@@ -234,7 +376,7 @@ def transactions(request):
 @login_required
 def detalles_facturacion(request):
     usuario = request.user.perfil   # el perfil extendido
-    metodos_pago = MetodoPago.objects.all()
+    
 
     if request.method == "POST":
         usuario.telefono = request.POST.get("telefono", usuario.telefono)
@@ -254,7 +396,7 @@ def detalles_facturacion(request):
 
     return render(request, "tienda/detalles_factura.html", {
         "usuario": usuario,
-        "metodos_pago": metodos_pago
+        
     })
 
 
@@ -262,18 +404,32 @@ def detalles_facturacion(request):
 
 # pedidos
 def pedidos(request):
-    pedidos = Pedido.objects.all()
-    carritos = CarritoProductoPedido.objects.all()
+    # Optimizamos la consulta para incluir datos del usuario y evitar consultas extra en la plantilla
+    lista_pedidos = Pedido.objects.select_related('usuario__user').order_by('-fecha')
     return render(request, 'tienda/admin/pedidos/pedidos.html', {
-        'pedidos': pedidos,
-        'carritos': carritos
+        'pedidos': lista_pedidos
     })
+
 def pedido_detalle(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
     carritos = CarritoProductoPedido.objects.filter(pedido=pedido)
+
+    # obtenemos transacciones relacionadas
+    transacciones = Transaccion.objects.filter(pedido=pedido).order_by('-fecha')
+
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+        if nuevo_estado in [estado[0] for estado in Pedido.ESTADOS]:
+            pedido.estado = nuevo_estado
+            pedido.save()
+            messages.success(request, f"El estado del pedido #{pedido.id} ha sido actualizado a '{nuevo_estado}'.")
+            return redirect('pedido_detalle', pedido_id=pedido.id)
+
     return render(request, 'tienda/admin/pedidos/pedido_detalle.html', {
         'pedido': pedido,
-        'carritos': carritos
+        'carritos': carritos,
+        'estados_posibles': Pedido.ESTADOS,
+        'transacciones': transacciones,   # <-- nuevo
     })
 
 #crear pedido
@@ -286,12 +442,13 @@ def crear_pedido(request):
         # Usar el perfil asociado al User
         usuario = request.user.perfil  
 
-        metodo_pago_id = data.get("metodo_pago")
-        metodo_pago = get_object_or_404(MetodoPago, id=metodo_pago_id)
+        # Asignar el primer método de pago disponible (ej. PayU) por defecto.
+        # Asegúrate de tener al menos un método de pago en tu base de datos.
+        
 
         pedido = Pedido.objects.create(
             usuario=usuario,
-            metodo_pago=metodo_pago,
+            
             total=sum(float(item["price"]) * int(item["quantity"]) for item in data["carrito"]),
             estado="Pendiente"
         )

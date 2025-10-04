@@ -14,7 +14,9 @@ SECRET_KEY = 'django-insecure-%(&#mm6b+=b@i5aui7lqa&om64!o@7l52_u$_)j!^v1b@u1834
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ¡IMPORTANTE! Añade aquí el dominio que te da ngrok
+# Ejemplo: '1a2b-3c4d-5e6f.ngrok.io'
+
 
 
 # Application definition
@@ -174,4 +176,27 @@ ACCOUNT_UNIQUE_EMAIL = True
 
 # ACCOUNT_EMAIL_VERIFICATION = "mandatory" # verificar el email
 
-ACCOUNT_LOGOUT_ON_GET = False # para cerrar sesion sin preguntar
+ACCOUNT_LOGOUT_ON_GET = False # para cerrar sesion antes preguntar
+
+
+
+
+
+PAYU_USE_SANDBOX = True
+
+# Credenciales (sandbox)
+PAYU_API_KEY = "4Vj8eK4rloUd272L48hsrarnUA"        # ApiKey que PayU te da
+PAYU_MERCHANT_ID = "508029"
+PAYU_ACCOUNT_ID = "512321"
+# Opcional: si te dieron una secret distinta (salt), ponla; si no, usaremos el API_KEY como secret.
+# Como no tienes Secret Key, dejamos esta línea comentada. El sistema usará el API Key para la firma.
+# PAYU_SECRET_KEY = "TU_SECRET_KEY_SI_LO_TIENES"
+# Endpoints
+PAYU_SANDBOX_URL = "https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/"
+PAYU_PROD_URL    = "https://checkout.payulatam.com/ppp-web-gateway-payu/"
+
+# URLs públicas que PayU usará para redirección y webhook (deben ser HTTPS)
+# Reemplaza 'https://tu-dominio-publico.com' por tu URL pública (ej. de ngrok)
+PAYU_RESPONSE_URL = "https://aquí-tu-dominio-de-ngrok.io/payu/response/"        # visible al usuario
+PAYU_CONFIRMATION_URL = "https://aquí-tu-dominio-de-ngrok.io/payu/confirmation/" # webhook (POST)
+PAYU_CURRENCY = "COP"

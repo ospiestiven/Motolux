@@ -122,20 +122,19 @@
 
                 cartItemsContainer.innerHTML += `
             <div class="d-flex align-items-center border-bottom py-2">
-              <img src="${item.image}" alt="${item.name}" class="me-2 rounded" style="width: 60px; height: 60px; object-fit: cover;">
-              <div class="flex-grow-1">
-                <strong>${item.name}</strong><br>
-                <small>$${item.price} c/u</small><br>
-                <small>Subtotal: <span class="text-danger">$${subtotal.toFixed(2)}</span></small>
-              </div>
-              <div class="d-flex flex-column align-items-center gap-1">
-                <button class="btn btn-sm btn-outline-secondary" onclick="increaseQuantity(${index})">➕</button>
-                <span>${item.quantity}</span>
-                <button class="btn btn-sm btn-outline-secondary" onclick="decreaseQuantity(${index})">➖</button>
-                <button class="btn btn-sm btn-danger mt-1" onclick="removeFromCart(${index})">🗑</button>
-              </div>
-            </div>
-          `;
+                <img src="${item.image}" alt="${item.name}" class="me-2 rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                <div class="flex-grow-1">
+                    <strong>${item.name}</strong><br>
+                    <small>$${item.price} c/u</small><br>
+                    <small>Subtotal: <span class="text-danger">$${subtotal.toFixed(2)}</span></small>
+                </div>
+                <div class="d-flex flex-column align-items-center gap-1">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="increaseQuantity(${index})">➕</button>
+                    <span>${item.quantity}</span>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="decreaseQuantity(${index})">➖</button>
+                    <button class="btn btn-sm btn-danger mt-1" onclick="removeFromCart(${index})">🗑</button>
+                </div>
+            </div>`;
             });
 
             cartTotal.textContent = total.toFixed(2);

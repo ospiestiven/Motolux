@@ -4,6 +4,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    #payU
+    path("payu/checkout/<int:pedido_id>/", views.payu_checkout, name="payu_checkout"),
+    path("payu/response/", views.payu_response, name="payu_response"),
+    path("payu/confirmation/", views.payu_confirmation, name="payu_confirmation"),
+
+
+    
     
     #index
     path('', views.index, name='index'),
@@ -12,8 +19,8 @@ urlpatterns = [
     #detalle producto
     path('producto/<int:producto_id>/', views.producto_detalle, name='producto_detalle'),
     
-     #catalogo
-     path('catalogo/', views.catalogo, name='catalogo'),
+    #catalogo
+    path('catalogo/', views.catalogo, name='catalogo'),
     
     #google login
     path('accounts/', include('allauth.urls')),

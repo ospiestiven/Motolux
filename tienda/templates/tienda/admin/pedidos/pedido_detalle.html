@@ -1,84 +1,163 @@
-{% extends "tienda/admin/layouts/base.html" %}
-{% load static %}
+{% extends 'tienda/admin/layouts/base.html' %}
 
-{% block title %}Detalle Pedido #{{ pedido.id }} - Motolux{% endblock %}
+{% block title %}Detalle del Pedido #{{ pedido.id }}{% endblock %}
 
 {% block content %}
-{% include 'tienda/admin/includes/sidebar.html' %}
+<div class="container-fluid">
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-    <div>
-        <h2 class="h4">Detalle Pedido #{{ pedido.id }}</h2>
-        <p class="mb-0">Información completa del pedido.</p>
-    </div>
-    <div>
-        <a href="{% url 'pedidos' %}" class="btn btn-outline-primary">
-            <span class="me-2"><i class="bi bi-arrow-left"></i></span> Volver a Pedidos
-        </a>
-    </div>
-</div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
 
-<!-- Información general del pedido -->
-<div class="card shadow mb-4">
-    <div class="card-body">
-        <h5 class="fw-bold text-danger">Información del Pedido</h5>
-        <div class="row mt-3">
-            <div class="col-md-6">
-                <p><strong>Cliente:</strong> {{ pedido.usuario.nombre_completo }}</p>
-                
-                <p><strong>Correo:</strong> {{ pedido.usuario.correo_electronico }}</p>
-                <p><strong>Teléfono:</strong> {{ pedido.usuario.telefono }}</p>
-                <p><strong>Dirección:</strong> {{ pedido.usuario.direccion }}, {{ pedido.usuario.ciudad }}, {{ pedido.usuario.departamento }}</p>
-
-            </div>
-            <div class="col-md-6">
-                <p><strong>Fecha:</strong> {{ pedido.fecha|date:"d/m/Y H:i" }}</p>
-                <p><strong>Método de Pago:</strong> {{ pedido.metodo_pago.tipo }}</p>
-                <p>
-                    <strong>Estado:</strong>
-                    <span
-                        class="badge {% if pedido.estado == 'Entregado' %}bg-success{% elif pedido.estado == 'Pendiente' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
-                        {{ pedido.estado }}
-                    </span>
-                </p>
-            </div>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div>
+            <h2 class="h4">Detalle Pedido #{{ pedido.id }}</h2>
+            <p class="mb-0">Información completa del pedido.</p>
+        </div>
+        <div>
+            <a href="{% url 'pedidos' %}" class="btn btn-outline-primary">
+                <span class="me-2"><i class="bi bi-arrow-left"></i></span> Volver a Pedidos
+            </a>
         </div>
     </div>
-</div>
 
-<!-- Productos del pedido -->
-<div class="card shadow">
-    <div class="card-body">
-        <h5 class="fw-bold text-danger">Productos del Pedido</h5>
-        <div class="table-responsive mt-3">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Imagen</th>
-                        <th>Cantidad</th>
-                        <th>Precio Unitario</th>
-                        <th>Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in carritos %}
-                    <tr>
-                        <td>{{ item.producto.nombre }}</td>
-                        <td>
-                            <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" class="rounded"
-                                style="width:60px; height:60px; object-fit:cover;">
-                        </td>
-                        <td>{{ item.cantidad }}</td>
-                        <td>${{ item.producto.precio }}</td>
-                        <td class="fw-bold text-danger">${{ item.total }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="row">
+        <!-- Información del Cliente -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">👤 Información del Cliente</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Nombre:</strong> {{ pedido.usuario.user.get_full_name }}</p>
+                    <p><strong>Email:</strong> {{ pedido.usuario.user.email }}</p>
+                    <p><strong>Teléfono:</strong> {{ pedido.usuario.telefono }}</p>
+                    <p><strong>Cédula:</strong> {{ pedido.usuario.cedula }}</p>
+                    <hr>
+                    <h6 class="font-weight-bold">Dirección de Envío:</h6>
+                    <p>
+                        {{ pedido.usuario.direccion }}<br>
+                        {% if pedido.usuario.direccion2 %}{{ pedido.usuario.direccion2 }}<br>{% endif %}
+                        {{ pedido.usuario.ciudad }}, {{ pedido.usuario.departamento }}
+                    </p>
+                </div>
+            </div>
         </div>
-        <div class="text-end mt-3">
-            <h4>Total del Pedido: <span class="text-danger">${{ pedido.total }}</span></h4>
+
+        <!-- Detalles del Pedido -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-danger">🛒 Productos del Pedido</h6>
+                    <span class="badge bg-primary text-white p-2">Total: ${{ pedido.total|floatformat:2 }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in carritos %}
+                                <tr>
+                                    <td>{{ item.producto.nombre }}</td>
+                                    <td>{{ item.cantidad }}</td>
+                                    <td>${{ item.producto.precio|floatformat:2 }}</td>
+                                    <td>${{ item.total|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cambiar Estado del Pedido -->
+            <div class="card shadow mt-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger"> Actualizar Estado del Pedido</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row align-items-end">
+                            <div class="col-md-8">
+                                <label for="estado">Selecciona el nuevo estado:</label>
+                                <select name="estado" id="estado" class="form-control">
+                                    {% for value, name in estados_posibles %}
+                                        <option value="{{ value }}" {% if pedido.estado == value %}selected{% endif %}>{{ name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-danger w-100">Actualizar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Transacciones -->
+                <!-- Transacciones relacionadas -->
+                <div class="card shadow mt-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-danger">💳 Transacciones relacionadas</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if transacciones %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>ID PayU</th>
+                                        <th>Fecha</th>
+                                        <th>Valor</th>
+                                        <th>Método</th>
+                                        <th>Estado</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for t in transacciones %}
+                                    <tr>
+                                        <td><small>{{ t.id_transaccion_payu }}</small></td>
+                                        <td>{{ t.fecha|date:"d/m/Y H:i" }}</td>
+                                        <td class="text-success fw-bold">${{ t.valor|floatformat:2 }} {{ t.moneda }}</td>
+                                        <td>{{ t.metodo_pago_nombre|default:"-" }}</td>
+                                        <td>
+                                            {% if t.estado_pol == '4' %}
+                                            <span class="badge bg-success">Aprobada</span>
+                                            {% elif t.estado_pol == '6' %}
+                                            <span class="badge bg-danger">Rechazada</span>
+                                            {% elif t.estado_pol == '5' %}
+                                            <span class="badge bg-warning text-dark">Expirada</span>
+                                            {% else %}
+                                            <span class="badge bg-info text-dark">Pendiente</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'transaction_detail' t.id %}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No hay transacciones registradas para este pedido.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+
+
+            </div>
         </div>
     </div>
 </div>

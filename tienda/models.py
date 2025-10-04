@@ -10,11 +10,7 @@ class Rol(models.Model):
         return self.nombre
 
 
-class MetodoPago(models.Model):
-    tipo = models.CharField(max_length=100)
 
-    def __str__(self):
-        return self.tipo
 
 
 class Categoria(models.Model):
@@ -31,7 +27,7 @@ class Categoria(models.Model):
 class Producto(models.Model):
     nombre = models.CharField(max_length=200,verbose_name="Nombre")
     descripcion = models.TextField(max_length=200,verbose_name="Descripción")
-    precio = models.DecimalField(max_digits=10, decimal_places=0, validators=[MinValueValidator(0)],verbose_name="Precio")
+    precio = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)],verbose_name="Precio")
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='productos',verbose_name="Categoría")
     imagen = models.ImageField(upload_to='productos/', verbose_name="Imagen")
     stock = models.PositiveIntegerField(default=0,verbose_name="Stock")
@@ -73,7 +69,7 @@ class Pedido(models.Model):
     ]
 
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='pedidos')
-    metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.CASCADE, related_name='pedidos')
+    
     fecha = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente')
@@ -91,3 +87,17 @@ class CarritoProductoPedido(models.Model):
 
     def __str__(self):
         return f"Carrito {self.id} - Pedido: {self.pedido.id}"
+
+
+class Transaccion(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.SET_NULL, null=True, related_name='transacciones')
+    id_transaccion_payu = models.CharField(max_length=255, unique=True, help_text="Transaction ID de PayU")
+    estado_pol = models.CharField(max_length=50, help_text="Estado de la transacción en PayU")
+    mensaje_respuesta = models.CharField(max_length=255, help_text="Mensaje de respuesta de PayU")
+    metodo_pago_nombre = models.CharField(max_length=100, help_text="Nombre del método de pago usado")
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    moneda = models.CharField(max_length=10)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Transacción {self.id_transaccion_payu} para Pedido {self.pedido.id}"

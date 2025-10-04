@@ -82,19 +82,9 @@
                     <span>Total:</span>
                     <span class="text-danger" id="resumen-total">$0</span>
                 </h5>
-                <div class="mb-3">
-                    <label for="metodo_pago" class="form-label">Método de Pago</label>
-                    <select name="metodo_pago" id="metodo_pago" class="form-select" required>
-                        <option value="">Seleccione un método</option>
-                        {% for metodo in metodos_pago %}
-                        <option value="{{ metodo.id }}">{{ metodo.tipo }}</option>
-                        {% endfor %}
-                    </select>
-                
-                </div>
                 <!-- realizar pedido -->
-                <button type="button" id="btn-realizar-pedido" class="btn btn-outline-danger w-100 mt-3">
-                    ✏️ Realizar Pedido
+                <button type="button" id="btn-realizar-pedido" class="btn btn-danger w-100 mt-3">
+                    Realizar Pedido
                 </button>
 
 
@@ -112,15 +102,9 @@
         if (btnPedido) {
             btnPedido.addEventListener("click", () => {
                 let cart = JSON.parse(localStorage.getItem("cart")) || [];
-                let metodoPago = document.getElementById("metodo_pago").value;
 
                 if (cart.length === 0) {
                     alert("Tu carrito está vacío.");
-                    return;
-                }
-
-                if (!metodoPago) {
-                    alert("Debes seleccionar un método de pago.");
                     return;
                 }
 
@@ -131,20 +115,20 @@
                         "X-CSRFToken": "{{ csrf_token }}"
                     },
                     body: JSON.stringify({
-                        carrito: cart,
-                        metodo_pago: metodoPago
+                        carrito: cart
                     })
                 })
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            alert("✅ Pedido creado con éxito. ID: " + data.pedido_id);
                             localStorage.removeItem("cart"); // limpiar carrito
-                            location.href = "{% url 'perfil' %}"; // redirigir al perfil
+                            // redirige al endpoint que genera el form de PayU
+                            window.location.href = `/payu/checkout/${data.pedido_id}/`;
                         } else {
                             alert("❌ Hubo un problema al crear el pedido.");
                         }
                     })
+
                     .catch(err => console.error(err));
             });
         }
