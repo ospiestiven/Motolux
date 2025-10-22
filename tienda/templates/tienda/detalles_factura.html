@@ -14,53 +14,53 @@
 
                 <form method="post">
                     {% csrf_token %}
-                    {% for message in messages %}
-                    <div class="alert alert-danger py-1 mb-2 small text-center">{{ message }}</div>
-                    {% endfor %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-success py-2 mb-3 small text-center">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
                 
                     <div class="mb-3">
                         <label for="id_nombre_completo" class="form-label">Nombre completo</label>
                         <input type="text" name="nombre_completo" id="id_nombre_completo" class="form-control"
-                            value="{{ request.user.first_name }}" required>
+                            value="{{ request.user.first_name|default_if_none:'' }}" required>
                     </div>
                 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="telefono" class="form-label">Teléfono</label>
-                            <input type="text" id="id_telefono" name="telefono" class="form-control" value="{{ usuario.telefono }}" required>
+                            <input type="text" id="id_telefono" name="telefono" class="form-control" value="{{ usuario.telefono|default_if_none:'' }}" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="cedula" class="form-label">Número de Cédula</label>
-                            <input type="text" id="cedula" name="cedula" class="form-control" value="{{ usuario.cedula }}" required>
+                            <input type="number" id="cedula" name="cedula" class="form-control" value="{{ usuario.cedula|default_if_none:'' }}" required>
                         </div>
                     </div>
-                
-                    
                 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="departamento" class="form-label">Departamento</label>
-                            <input type="text" id="id_departamento" name="departamento" class="form-control" value="{{ usuario.departamento }}"
+                            <input type="text" id="id_departamento" name="departamento" class="form-control" value="{{ usuario.departamento|default_if_none:'' }}"
                                 placeholder="Departamento" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="ciudad" class="form-label">Ciudad</label>
-                            <input type="text" id="id_ciudad" name="ciudad" class="form-control" value="{{ usuario.ciudad }}"
+                            <input type="text" id="id_ciudad" name="ciudad" class="form-control" value="{{ usuario.ciudad|default_if_none:'' }}"
                                 placeholder="Ciudad" required>
                         </div>
                         
                     </div>
                     <div class="mb-3">
                         <label for="direccion" class="form-label">Dirección</label>
-                        <input type="text" id="direccion" name="direccion" class="form-control mb-2" value="{{ usuario.direccion }}"
+                        <input type="text" id="direccion" name="direccion" class="form-control mb-2" value="{{ usuario.direccion|default_if_none:'' }}"
                             placeholder="Número de casa y nombre de la calle" required>
-                        <input type="text" id="id_direccion2" name="direccion2" class="form-control" value="{{ usuario.direccion2 }}"
+                        <input type="text" id="id_direccion2" name="direccion2" class="form-control" value="{{ usuario.direccion2|default_if_none:'' }}"
                             placeholder="Apartamento, habitación, etc. (opcional)">
                     </div>
                     <div class="mb-3">
                         <label for="id_correo_electronico" class="form-label">Correo electrónico</label>
                         <input type="email" name="correo_electronico" id="id_correo_electronico" class="form-control"
-                            value="{{ request.user.email }}" required>
+                            value="{{ request.user.email|default_if_none:'' }}" required>
                     </div>
                 
                     <button type="submit" class="btn w-100 mt-3" style="background-color: #DD0B15; color: #fff;">
@@ -73,7 +73,7 @@
         <!-- RESUMEN DEL CARRITO -->
         <div class="col-lg-5">
             <div class="card shadow p-4">
-                <h5 class="fw-bold text-danger mb-3">🛒 Resumen de tu compra</h5>
+                <h5 class="fw-bold text-danger mb-3"> Resumen de tu compra</h5>
                 <div id="resumen-carrito">
                     <!-- Aquí se cargarán los productos desde localStorage -->
                 </div>
@@ -125,7 +125,7 @@
                             // redirige al endpoint que genera el form de PayU
                             window.location.href = `/payu/checkout/${data.pedido_id}/`;
                         } else {
-                            alert("❌ Hubo un problema al crear el pedido.");
+                            alert("Hubo un problema al crear el pedido.");
                         }
                     })
 
@@ -134,6 +134,42 @@
         }
     });
 </script>
+
+<script>
+    // Script para validar el formulario y habilitar/deshabilitar el botón de pedido
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector("form[method='post']");
+        const requiredInputs = form.querySelectorAll("input[required]");
+        const btnRealizarPedido = document.getElementById("btn-realizar-pedido");
+
+        function checkFormValidity() {
+            let allFieldsFilled = true;
+            requiredInputs.forEach(input => {
+                if (input.value.trim() === "") {
+                    allFieldsFilled = false;
+                }
+            });
+
+            if (allFieldsFilled) {
+                btnRealizarPedido.disabled = false;
+                btnRealizarPedido.textContent = "Realizar Pedido";
+            } else {
+                btnRealizarPedido.disabled = true;
+                btnRealizarPedido.textContent = "Completa tus datos para continuar";
+            }
+        }
+
+        // Añadir un listener a cada campo requerido
+        requiredInputs.forEach(input => {
+            input.addEventListener("input", checkFormValidity);
+        });
+
+        // Comprobar el estado inicial al cargar la página
+        checkFormValidity();
+    });
+</script>
+
+
 
 
 

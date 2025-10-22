@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.conf import settings
 import json
 from decimal import Decimal
@@ -176,7 +177,12 @@ def productos_por_categoria(request, categoria_id):
 #detalle producto
 def producto_detalle(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
-    return render(request, 'tienda/index/producto_detalle.html', {'producto': producto})
+    # Obtenemos otros productos de la misma categoría para mostrarlos como sugerencias
+    productos_relacionados = Producto.objects.filter(categoria=producto.categoria).exclude(id=producto_id)[:4]
+    return render(request, 'tienda/index/producto_detalle.html', {
+        'producto': producto,
+        'productos_relacionados': productos_relacionados
+    })
 
 
 
@@ -269,24 +275,34 @@ def editar_categoria(request, id):
 
 #USUARIOS
 def usuarios(request):
-    usuarios = Usuario.objects.all()
-    return render(request, 'tienda/admin/usuarios/usuario_admin.html', {'usuarios': usuarios})
-
-# Agregar usuario admin
-def agregar_usuario(request):
+    # Si se envía el formulario del modal para crear un admin
     if request.method == 'POST':
-        formulario = UsuarioForm(request.POST)
-        correo_electronico = request.POST.get('correo_electronico')
-        if Usuario.objects.filter(correo_electronico=correo_electronico).exists():
-            messages.error(request, "El correo electrónico ya está registrado.")
-        elif formulario.is_valid():
-            usuario = formulario.save(commit=False)
-            usuario.save()
-            messages.success(request, "Usuario agregado exitosamente.")
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        if not email or not password:
+            messages.error(request, "El email y la contraseña son obligatorios.")
             return redirect('usuarios')
-    else:
-        formulario = UsuarioForm()
-    return render(request, 'tienda/admin/usuarios/agregar_usuarios.html', {'formulario': formulario})
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, f"El correo electrónico '{email}' ya está en uso.")
+            return redirect('usuarios')
+
+        # Creamos el usuario como staff para que pueda acceder al admin
+        admin_user = User.objects.create_user(username=email, email=email, password=password, is_staff=True)
+        
+        # La señal se encargará de crear el perfil 'Usuario' y asignarle el rol 'Cliente'.
+        # Opcional: Si quieres un rol 'Admin', lo asignamos aquí.
+        admin_rol, _ = Rol.objects.get_or_create(nombre='Administrador')
+        admin_user.perfil.rol = admin_rol
+        admin_user.perfil.save()
+
+        messages.success(request, f"Administrador '{email}' creado exitosamente.")
+        return redirect('usuarios')
+
+    # Para la petición GET, mostramos la lista de usuarios
+    lista_usuarios = Usuario.objects.select_related('user', 'rol').order_by('-user__date_joined')
+    return render(request, 'tienda/admin/usuarios/usuario_admin.html', {'usuarios': lista_usuarios})
 
 #eliminar usuario
 def eliminar_usuario(request, id):
@@ -319,14 +335,8 @@ def base_admin(request):
 @login_required
 def perfil(request):
     # Obtener el usuario autenticado
-    user = request.user
-    # Obtener o crear el perfil de usuario relacionado
-    usuario, created = Usuario.objects.get_or_create(
-        user=user,
-        defaults={
-            'rol': Rol.objects.get(nombre='Cliente')  # Asigna un rol por defecto
-        }
-    )
+    user = request.user  # Modelo User de Django
+    usuario = user.perfil # Accedemos al perfil directamente gracias al related_name
 
     if request.method == 'POST':
         # Actualizar los campos del modelo User
@@ -353,7 +363,8 @@ def perfil(request):
         return redirect('perfil')
 
     # Obtener los pedidos del usuario
-    pedidos = Pedido.objects.filter(usuario=usuario).order_by('-fecha')
+    # Optimizamos la consulta para incluir los productos de cada pedido
+    pedidos = Pedido.objects.filter(usuario=usuario).prefetch_related('carritos__producto').order_by('-fecha')
 
     return render(request, 'tienda/index/perfil.html', {
         'user': user,  # Usuario autenticado de Django
@@ -376,6 +387,10 @@ def transactions(request):
 @login_required
 def detalles_facturacion(request):
     usuario = request.user.perfil   # el perfil extendido
+
+    # Limpiamos los mensajes antiguos para que no se muestren en esta página
+    # a menos que se generen por una acción aquí mismo.
+    list(messages.get_messages(request))
     
 
     if request.method == "POST":

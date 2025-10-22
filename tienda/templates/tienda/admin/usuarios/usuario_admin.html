@@ -1,6 +1,6 @@
-{% extends "tienda/admin/layouts/base.html" %}
-{% load static %}
-{% block title %}Usuarios - Motolux{% endblock %}
+{% extends 'tienda/admin/layouts/base.html' %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
 
 {% block content %}
 {% include 'tienda/admin/includes/sidebar.html' %}
@@ -10,39 +10,49 @@
         <h2 class="h4">Usuarios</h2>
         <p class="mb-0">Gestión de usuarios registrados.</p>
     </div>
-    <div>
-        <a href="{% url 'agregar_usuario' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
-            <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-            Agregar Usuario
-        </a>
-    </div>
+    <button type="button" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addAdminModal">
+        <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        Agregar Administrador
+    </button>
 </div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
 
 <div class="card card-body border-0 shadow table-wrapper table-responsive">
     <table class="table table-hover">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Correo Electrónico</th>
-                <th>Rol</th>
-                <th>Dirección</th>
-                <th>Teléfono</th>
-                <th>Acciones</th>
+                <th class="border-gray-200">Nombre</th>
+                <th class="border-gray-200">Correo Electrónico</th>
+                <th class="border-gray-200">Rol</th>
+                <th class="border-gray-200">Teléfono</th>
+                <th class="border-gray-200">Fecha de Registro</th>
+                <th class="border-gray-200">Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for usuario in usuarios %}
             <tr>
-                <td>{{ usuario.id }}</td>
-                <td>{{ usuario.nombre_completo }}</td>
-                <td>{{ usuario.correo_electronico }}</td>
-                <td>{{ usuario.rol }}</td>
-                <td>{{ usuario.direccion }}</td>
-                <td>{{ usuario.telefono }}</td>
+                <td>{{ usuario.user.get_full_name|default:usuario.user.username }}</td>
+                <td>{{ usuario.user.email }}</td>
                 <td>
-                    <a href="#" class="btn btn-sm btn-outline-primary disabled">Editar</a>
-                    <a href="{% url 'eliminar_usuario' usuario.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">Eliminar</a>
+                    <span class="badge {% if usuario.rol.nombre == 'Administrador' %}bg-danger{% else %}bg-secondary{% endif %}">
+                        {{ usuario.rol.nombre }}
+                    </span>
+                </td>
+                <td>{{ usuario.telefono|default:"-" }}</td>
+                <td>{{ usuario.user.date_joined|date:"d/m/Y" }}</td>
+                <td>
+                    <a href="{% url 'eliminar_usuario' usuario.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+                        Eliminar
+                    </a>
                 </td>
             </tr>
             {% empty %}
@@ -52,5 +62,34 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
+<!-- Modal para Agregar Administrador -->
+<div class="modal fade" id="addAdminModal" tabindex="-1" aria-labelledby="addAdminModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'usuarios' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAdminModalLabel">Crear Nuevo Administrador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Administrador</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

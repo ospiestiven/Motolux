@@ -60,22 +60,23 @@
   <div class="row productos-container">
     {% for producto in productos %}
     <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 d-flex align-items-stretch">
-      <div class="card producto w-100">
+      <div class="card producto w-100 shadow-sm border-0">
         <a href="{% url 'producto_detalle' producto.id %}">
           <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
         </a>
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">
-            <a href="{% url 'producto_detalle' producto.id %}" class="text-dark text-decoration-none">{{ producto.nombre }}</a>
+            <a href="{% url 'producto_detalle' producto.id %}" class="text-dark text-decoration-none stretched-link">{{ producto.nombre }}</a>
           </h5>
-          <p class="card-text">{{ producto.descripcion }}</p>
-          <p class="precio mt-auto">${{ producto.precio }}</p>
-          <button class="btn btn-danger w-100 mt-2 add-to-cart" data-id="{{ producto.id }}" data-name="{{ producto.nombre }}"
-            data-price="{{ producto.precio }}" data-image="{{ producto.imagen.url }}">
-            <i class="bi bi-cart2"></i> Añadir al carrito
-          </button>
-
-
+          <p class="card-text text-muted small">{{ producto.descripcion|truncatechars:80 }}</p>
+          <div class="mt-auto">
+            <p class="precio mb-2">${{ producto.precio|floatformat:2 }}</p>
+            <button class="btn btn-danger w-100 mt-2 add-to-cart" 
+                    data-id="{{ producto.id }}" data-name="{{ producto.nombre }}"
+                    data-price="{{ producto.precio }}" data-image="{{ producto.imagen.url }}">
+              <i class="bi bi-cart2"></i> Añadir al carrito
+            </button>
+          </div>
         </div>
       </div>
     </div>

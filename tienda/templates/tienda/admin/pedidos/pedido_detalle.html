@@ -28,7 +28,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-danger">👤 Información del Cliente</h6>
+                    <h6 class="m-0 font-weight-bold text-danger"> Información del Cliente</h6>
                 </div>
                 <div class="card-body">
                     <p><strong>Nombre:</strong> {{ pedido.usuario.user.get_full_name }}</p>
@@ -50,7 +50,7 @@
         <div class="col-lg-8 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-danger">🛒 Productos del Pedido</h6>
+                    <h6 class="m-0 font-weight-bold text-danger"> Detalles del Pedido</h6>
                     <span class="badge bg-primary text-white p-2">Total: ${{ pedido.total|floatformat:2 }}</span>
                 </div>
                 <div class="card-body">
@@ -107,7 +107,7 @@
                 <!-- Transacciones relacionadas -->
                 <div class="card shadow mt-4">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-danger">💳 Transacciones relacionadas</h6>
+                        <h6 class="m-0 font-weight-bold text-danger"> Transacciones relacionadas</h6>
                     </div>
                     <div class="card-body">
                         {% if transacciones %}

@@ -57,8 +57,7 @@ urlpatterns = [
     
     #USUARIOS admin
     path('usuarios/', views.usuarios, name='usuarios'),
-    # Agregar usuario
-    path('agregar-usuario/', views.agregar_usuario, name='agregar_usuario'),
+    
     # Eliminar usuario
     path('eliminar-usuario/<int:id>/', views.eliminar_usuario, name='eliminar_usuario'),
     

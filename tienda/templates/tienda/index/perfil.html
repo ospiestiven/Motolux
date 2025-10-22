@@ -110,7 +110,6 @@
                 <tr>
                   <th>#</th>
                   <th>Fecha</th>
-                  <th>producto</th>
                   <th>Total</th>
                   <th>Estado</th>
                   <th>Detalle</th>
@@ -121,16 +120,15 @@
                 <tr>
                   <td>{{ pedido.id }}</td>
                   <td>{{ pedido.fecha|date:"d/m/Y" }}</td>
-                  <td>{{ pedido.imagen }}</td>
-                  <td>${{ pedido.total }}</td>
+                  <td>${{ pedido.total|floatformat:2 }}</td>
                   <td>
                     <span
-                      class="badge {% if pedido.estado == 'Entregado' %}bg-success{% else %}bg-secondary{% endif %}">
+                      class="badge {% if pedido.estado == 'Entregado' %}bg-success{% elif pedido.estado == 'Procesando' %}bg-info{% elif pedido.estado == 'Cancelado' %}bg-danger{% else %}bg-warning{% endif %}">
                       {{ pedido.estado }}
                     </span>
                   </td>
                   <td>
-                    <a href="{% url 'pedido_detalle' pedido.id %}" class="btn btn-outline-danger btn-sm">Ver</a>
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#detallePedidoModal{{ pedido.id }}">Ver</button>
                   </td>
                 </tr>
                 {% endfor %}
@@ -141,6 +139,51 @@
             {% endif %}
           </div>
         </div>
+
+        <!-- Modales para cada pedido -->
+        {% for pedido in pedidos %}
+        <div class="modal fade" id="detallePedidoModal{{ pedido.id }}" tabindex="-1" aria-labelledby="detallePedidoModalLabel{{ pedido.id }}" aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="detallePedidoModalLabel{{ pedido.id }}">Detalle del Pedido #{{ pedido.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p><strong>Fecha:</strong> {{ pedido.fecha|date:"d F, Y" }}</p>
+                <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+                <hr>
+                <h6 class="fw-bold">Productos:</h6>
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Cantidad</th>
+                      <th>Precio Unit.</th>
+                      <th>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in pedido.carritos.all %}
+                    <tr>
+                      <td>{{ item.producto.nombre }}</td>
+                      <td>{{ item.cantidad }}</td>
+                      <td>${{ item.producto.precio|floatformat:2 }}</td>
+                      <td>${{ item.total|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <hr>
+                <h5 class="text-end">Total del Pedido: <span class="text-danger">${{ pedido.total|floatformat:2 }}</span></h5>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
         
         
         <!-- Cambiar Contraseña -->

@@ -45,5 +45,4 @@ def generate_confirmation_signature(api_key: str, merchant_id: str, reference_sa
     """
     new_value = format_confirmation_value(value) # Usamos la función de formato
     base = f"{api_key}~{merchant_id}~{reference_sale}~{new_value}~{currency}~{state_pol}"
-    secret = secret_key or api_key
-    return _hmac_sha256_hex(secret, base)
+    return hashlib.md5(base.encode("utf-8")).hexdigest()
