@@ -243,3 +243,41 @@ footer p {
     border: 1px solid #ced4da;
     font-size: 1rem;
 }
+
+
+
+/* Ajustes responsive para categorias y header */
+@media (max-width: 991.98px) {
+    .categorias .nav-link {
+        padding-left: .5rem;
+        padding-right: .5rem;
+        font-size: .95rem;
+    }
+
+    .navbar .logo {
+        height: 42px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .categorias .nav-link {
+        white-space: nowrap;
+        font-size: .92rem;
+    }
+
+    /* permite que la lista de categorías sea desplazable horizontalmente en caso de overflow */
+    #categoriasCollapse .navbar-nav {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #categoriasCollapse .navbar-nav .nav-item {
+        flex: 0 0 auto;
+        /* evita que los items colapsen verticalmente cuando hay scroll */
+    }
+}
+
+/* pequeño ajuste visual del navbar-toggler para que contraste en bg-danger */
+.navbar-dark .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.08);
+}

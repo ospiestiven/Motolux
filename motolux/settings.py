@@ -124,6 +124,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+ALLOWED_HOSTS = [
+    'pentahydrated-minta-uncollected.ngrok-free.dev', # <-- Tu dominio de ngrok
+    '127.0.0.1', 'localhost'
+]
+
+# Orígenes de confianza para CSRF (necesario para HTTPS con ngrok)
+CSRF_TRUSTED_ORIGINS = [
+    'https://pentahydrated-minta-uncollected.ngrok-free.dev'
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -178,6 +187,10 @@ ACCOUNT_UNIQUE_EMAIL = True
 
 ACCOUNT_LOGOUT_ON_GET = False # para cerrar sesion antes preguntar
 
+SOCIALACCOUNT_ADAPTER = 'tienda.adapters.SocialAccountAdapter'
+# opcional: permitir que allauth intente auto-signup cuando falten datos
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
 
 
 
@@ -196,7 +209,6 @@ PAYU_SANDBOX_URL = "https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/
 PAYU_PROD_URL    = "https://checkout.payulatam.com/ppp-web-gateway-payu/"
 
 # URLs públicas que PayU usará para redirección y webhook (deben ser HTTPS)
-# Reemplaza 'https://tu-dominio-publico.com' por tu URL pública (ej. de ngrok)
-PAYU_RESPONSE_URL = "https://aquí-tu-dominio-de-ngrok.io/payu/response/"        # visible al usuario
-PAYU_CONFIRMATION_URL = "https://aquí-tu-dominio-de-ngrok.io/payu/confirmation/" # webhook (POST)
+PAYU_RESPONSE_URL = "https://pentahydrated-minta-uncollected.ngrok-free.dev/payu/response/"        # visible al usuario
+PAYU_CONFIRMATION_URL = "https://pentahydrated-minta-uncollected.ngrok-free.dev/payu/confirmation/" # webhook (POST)
 PAYU_CURRENCY = "COP"

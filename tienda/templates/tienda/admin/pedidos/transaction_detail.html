@@ -1,0 +1,82 @@
+{% extends 'tienda/admin/layouts/base.html' %}
+
+{% block title %}Detalle de Transacción{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div>
+            <h2 class="h4">Detalle de Transacción</h2>
+            <p class="mb-0">ID de PayU: {{ transaccion.id_transaccion_payu }}</p>
+        </div>
+        <div>
+            <a href="{% url 'pedido_detalle' transaccion.pedido.id %}" class="btn btn-outline-primary">
+                <span class="me-2"><i class="bi bi-arrow-left"></i></span> Volver al Pedido
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">Información de la Transacción</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Pedido Asociado:</strong> <a href="{% url 'pedido_detalle' transaccion.pedido.id %}">#{{ transaccion.pedido.id }}</a></p>
+                            <p><strong>Fecha:</strong> {{ transaccion.fecha|date:"d F, Y H:i:s" }}</p>
+                            <p><strong>ID de Transacción PayU:</strong> {{ transaccion.id_transaccion_payu }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Valor:</strong> <span class="fw-bold text-success">${{ transaccion.valor|floatformat:2 }} {{ transaccion.moneda }}</span></p>
+                            <p><strong>Método de Pago:</strong> {{ transaccion.metodo_pago_nombre|default:"No especificado" }}</p>
+                            <p><strong>Estado PayU:</strong>
+                                {% if transaccion.estado_pol == '4' %}
+                                    <span class="badge bg-success">Aprobada</span>
+                                {% elif transaccion.estado_pol == '6' %}
+                                    <span class="badge bg-danger">Rechazada</span>
+                                {% elif transaccion.estado_pol == '5' %}
+                                    <span class="badge bg-warning text-dark">Expirada</span>
+                                {% elif transaccion.estado_pol == '7' %}
+                                    <span class="badge bg-info text-dark">Pendiente</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ transaccion.estado_pol|default:"Desconocido" }}</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Mensaje de Respuesta:</strong> <span class="text-muted">{{ transaccion.mensaje_respuesta|default:"N/A" }}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos del Cliente -->
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">Datos del Cliente</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Nombre:</strong> {{ transaccion.pedido.usuario.user.get_full_name|default:transaccion.pedido.usuario.user.username }}</p>
+                            <p><strong>Email:</strong> {{ transaccion.pedido.usuario.user.email }}</p>
+                            <p><strong>Teléfono:</strong> {{ transaccion.pedido.usuario.telefono|default:"No especificado" }}</p>
+                            <p><strong>Cédula:</strong> {{ transaccion.pedido.usuario.cedula|default:"No especificada" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="font-weight-bold">Dirección de Envío:</h6>
+                            <p class="mb-0">{{ transaccion.pedido.usuario.direccion|default:"-" }}</p>
+                            {% if transaccion.pedido.usuario.direccion2 %}<p class="mb-0">{{ transaccion.pedido.usuario.direccion2 }}</p>{% endif %}
+                            <p class="mb-0">{{ transaccion.pedido.usuario.ciudad|default:"-" }}, {{ transaccion.pedido.usuario.departamento|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

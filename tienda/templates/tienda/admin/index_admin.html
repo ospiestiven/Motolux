@@ -1,57 +1,289 @@
 {% extends "tienda/admin/layouts/base.html" %}
-{% block title %}Inicio - Motolux{% endblock %}
 {% load static %}
+{% block title %}Inicio - Motolux{% endblock %}
 
 {% block content %}
 {% include 'tienda/admin/includes/sidebar.html' %}
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 mb-4">Bienvenido al apartado de administración</h1>
-    <div class="row g-4">
-        <div class="col-md-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap mt-4 mb-4">
+        <h1 class="h2 mb-0">Dashboard</h1>
+        <form method="get" class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center">
+                <label for="start_date" class="form-label small mb-0 me-2">Desde:</label>
+                <input type="date" id="start_date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm" style="width: auto;">
+            </div>
+            <div class="d-flex align-items-center">
+                <label for="end_date" class="form-label small mb-0 me-2">Hasta:</label>
+                <input type="date" id="end_date" name="end_date" value="{{ end_date }}" class="form-control form-control-sm" style="width: auto;">
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary d-inline-flex align-items-center">
+                <i class="bi bi-funnel-fill me-1"></i> Filtrar
+            </button>
+        </form>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm text-center">
                 <div class="card-body">
                     <div class="mb-2">
-                        <svg class="icon icon-lg text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="40" height="40"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v4a1 1 0 001 1h3v9a1 1 0 001 1h6a1 1 0 001-1v-9h3a1 1 0 001-1V7a1 1 0 00-1-1H4a1 1 0 00-1 1z" /></svg>
+                        <!-- icono -->
+                        <svg class="icon icon-lg text-primary" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7v4a1 1 0 001 1h3v9a1 1 0 001 1h6a1 1 0 001-1v-9h3a1 1 0 001-1V7a1 1 0 00-1-1H4a1 1 0 00-1 1z" />
+                        </svg>
                     </div>
                     <h2 class="h3 mb-1">{{ total_productos }}</h2>
                     <p class="mb-0">Productos</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm text-center">
                 <div class="card-body">
                     <div class="mb-2">
-                        <svg class="icon icon-lg text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="40" height="40"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-4a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <svg class="icon icon-lg text-success" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-4a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
                     </div>
                     <h2 class="h3 mb-1">{{ total_usuarios }}</h2>
                     <p class="mb-0">Usuarios</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm text-center">
                 <div class="card-body">
                     <div class="mb-2">
-                        <svg class="icon icon-lg text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="40" height="40"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+                        <svg class="icon icon-lg text-warning" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                        </svg>
                     </div>
                     <h2 class="h3 mb-1">{{ total_categorias }}</h2>
                     <p class="mb-0">Categorías</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm text-center">
                 <div class="card-body">
                     <div class="mb-2">
-                        <svg class="icon icon-lg text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="40" height="40"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <svg class="icon icon-lg text-danger" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
                     </div>
-                    <h2 class="h3 mb-1">{{ total_pedidos }}</h2>
+                    <h2 class="h3 mb-1">{{ total_pedidos|default:"0" }}</h2>
                     <p class="mb-0">Pedidos</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">Ingresos</h5>
+                        <small class="text-muted">En {{ currency }}</small>
+                    </div>
+                    <div style="height:320px;">
+                        <canvas id="salesChart" class="w-100 h-100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <h6 class="mb-3">Top productos vendidos</h6>
+                    <div style="height:200px;">
+                        <canvas id="topProductsChart" class="w-100 h-100"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-3">Estado de los pedidos</h6>
+                    <div style="height:180px;">
+                        <canvas id="ordersStatusChart" class="w-100 h-100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent orders + Quick actions -->
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Pedidos recientes</h5>
+                        <a href="{% url 'pedidos' %}" class="small">Ver todos</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle">
+                            <thead>
+                                <tr class="text-muted small">
+                                    <th>#</th>
+                                    <th>Cliente</th>
+                                    <th>Importe</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pedido in recent_orders %}
+                                <tr>
+                                    <td class="fw-semibold">{{ pedido.id }}</td>
+                                    <td>{{ pedido.user_name|default:pedido.user_email }}</td>
+                                    <td class="text-danger fw-semibold">{{ pedido.total|floatformat:2 }}</td>
+                                    <td>
+                                        <span class="badge
+                                          {% if pedido.status == 'Pendiente' %}bg-warning text-dark
+                                          {% elif pedido.status == 'Procesando' %}bg-info
+                                          {% elif pedido.status == 'Entregado' %}bg-success
+                                          {% elif pedido.status == 'Cancelado' %}bg-danger
+                                          {% else %}bg-secondary{% endif %}">
+                                            {{ pedido.status|capfirst }}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted small">{{ pedido.created_at }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">No hay pedidos recientes.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
             
+
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Alertas</h5>
+                    
+                    <div class="mb-3">
+                        <h6 class="small text-muted fw-bold">BAJO STOCK</h6>
+                        <ul class="list-unstyled small mb-0">
+                            {% for p in low_stock_products %}
+                            <li class="mb-1">
+                                <i class="bi bi-box-seam text-warning"></i> <strong>{{ p.nombre }}</strong> - stock: <span class="text-danger">{{ p.stock }}</span>
+                            </li>
+                            {% empty %}
+                            <li class="text-muted">No hay productos con bajo stock.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div>
+                        <h6 class="small text-muted fw-bold">SIN VENTAS</h6>
+                        <ul class="list-unstyled small mb-0">
+                            {% for p in unsold_products %}
+                            <li class="mb-1"><i class="bi bi-tag text-secondary"></i> {{ p.nombre }}</li>
+                            {% empty %}
+                            <li class="text-muted">¡Todos los productos han tenido ventas!</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
+
+<!-- Charts scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Las variables deben renderizar JSON válido en una sola línea
+    const salesLabels = {{ sales_labels| safe }};
+    const salesData = {{ sales_data| safe }};
+    const topLabels = {{ top_products_labels| safe }};
+    const topData = {{ top_products_data| safe }};
+    const statusLabels = {{ orders_status_labels| safe }};
+    const statusData = {{ orders_status_data| safe }};
+
+    function getCtx(id) {
+        const el = document.getElementById(id);
+        return el ? el.getContext('2d') : null;
+    }
+
+    // Sales line chart
+    const ctxSales = getCtx('salesChart');
+    if (ctxSales) {
+        new Chart(ctxSales, {
+            type: 'line',
+            data: {
+                labels: salesLabels,
+                datasets: [{
+                    label: 'Ingresos',
+                    data: salesData,
+                    borderColor: '#DD0B15',
+                    backgroundColor: 'rgba(221,11,21,0.08)',
+                    fill: true,
+                    tension: 0.25,
+                    pointRadius: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    // Top products (horizontal bar)
+    const ctxTop = getCtx('topProductsChart');
+    if (ctxTop) {
+        new Chart(ctxTop, {
+            type: 'bar',
+            data: {
+                labels: topLabels,
+                datasets: [{ data: topData, backgroundColor: '#FF6B6B' }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+    }
+
+    // Orders status (doughnut)
+    const ctxStatus = getCtx('ordersStatusChart');
+    if (ctxStatus) {
+        new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: { labels: statusLabels, datasets: [{ data: statusData, backgroundColor: ['#FFC107', '#28A745', '#DC3545', '#6C757D'] }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+});
+</script>
+
+
 {% endblock %}

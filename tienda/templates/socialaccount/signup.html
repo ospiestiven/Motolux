@@ -1,29 +1,45 @@
+
 {% extends 'tienda/index/base1.html' %}
-{% load i18n %}
-{% load allauth %}
-{% block head_title %}
-    {% trans "Signup" %}
-{% endblock head_title %}
+{% load i18n allauth %}
+{% block head_title %}{% trans "Registro con proveedor" %}{% endblock head_title %}
 {% block content %}
-    {% element h1 %}
-        {% trans "Sign Up" %}
-    {% endelement %}
-    {% element p %}
-        {% blocktrans with provider_name=account.get_provider.name site_name=site.name %}You are about to use your {{provider_name}} account to login to
-{{site_name}}. As a final step, please complete the following form:{% endblocktrans %}
-    {% endelement %}
-    {% url 'socialaccount_signup' as action_url %}
-    {% element form form=form method="post" action=action_url %}
-        {% slot body %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height:80vh;">
+    <div class="card shadow-sm" style="max-width:520px; width:100%;">
+        <div class="card-body p-4">
+            <div class="text-center mb-3">
+                <h2 class="fw-bold text-danger mb-0">Motolux</h2>
+                <p class="text-secondary mb-0 small">
+                    {% blocktrans with provider_name=account.get_provider.name site_name=site.name %}
+                    Vas a usar tu cuenta de {{ provider_name }} para registrarte en {{ site_name }}. Completa los datos
+                    finales.
+                    {% endblocktrans %}
+                </p>
+            </div>
+
+            {% url 'socialaccount_signup' as action_url %}
+            {% element form form=form method="post" action=action_url %}
+            {% slot body %}
             {% csrf_token %}
-            {% element fields form=form unlabeled=True %}
-            {% endelement %}
+            <div class="row g-2">
+                {% element fields form=form unlabeled=True %}
+                {% endelement %}
+            </div>
             {{ redirect_field }}
-        {% endslot %}
-        {% slot actions %}
-            {% element button type="submit" %}
-                {% trans "Sign Up" %}
+            {% endslot %}
+
+            {% slot actions %}
+            {% element button type="submit" class="btn btn-danger w-100" %}
+            {% trans "Crear cuenta" %}
             {% endelement %}
-        {% endslot %}
-    {% endelement %}
+            {% endslot %}
+            {% endelement %}
+
+            <div class="text-center mt-3 small text-muted">
+                {% trans "¿Ya tienes cuenta?" %} <a href="{% url 'account_login' %}" class="link-danger">{% trans
+                    "Iniciar Sesión" %}</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}
+// ...existing code...

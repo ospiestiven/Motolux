@@ -66,6 +66,7 @@ urlpatterns = [
     path('pedidos/', views.pedidos, name='pedidos'),
     
     path('pedidos/<int:pedido_id>/', views.pedido_detalle, name='pedido_detalle'),
+    path ('transaccion/<int:transaction_id>/', views.transaction_detail, name='transaction_detail'),
     
     path("crear-pedido/", views.crear_pedido, name="crear_pedido"),
 
@@ -73,6 +74,7 @@ urlpatterns = [
     #plantilla
     path('tablas-bootstrap-tables/', views.tablas_bootstrap, name='tablas_bootstrap'),
     path('transactions/', views.transactions, name='transactions'),
+    
    
     
     

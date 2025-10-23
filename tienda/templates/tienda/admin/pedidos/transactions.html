@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h4 class="m-0 font-weight-bold text-danger">💸 Registro de Transacciones (PayU)</h4>
+            <h4 class="m-0 font-weight-bold text-danger">Registro de Transacciones (PayU)</h4>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -20,6 +20,7 @@
                             <th>Valor</th>
                             <th>Método de Pago</th>
                             <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,10 +53,13 @@
                                 <br>
                                 <small class="text-muted">{{ transaccion.mensaje_respuesta }}</small>
                             </td>
+                            <td>
+                                <a href="{% url 'transaction_detail' transaccion.id %}" class="btn btn-sm btn-outline-info">Ver más</a>
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="text-center">No se han registrado transacciones todavía.</td>
+                            <td colspan="8" class="text-center">No se han registrado transacciones todavía.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

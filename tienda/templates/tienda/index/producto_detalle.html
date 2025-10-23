@@ -92,52 +92,86 @@
     {% endif %}
 </div>
 
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const qtyInput = document.getElementById('quantity-input');
-    const increaseBtn = document.getElementById('increase-qty');
-    const decreaseBtn = document.getElementById('decrease-qty');
-    const addToCartBtn = document.querySelector('.add-to-cart');
-    const stock = {{ producto.stock }};
+    
+        document.addEventListener('DOMContentLoaded', function () {
+        const qtyInput = document.getElementById('quantity-input');
+            const increaseBtn = document.getElementById('increase-qty');
+            const decreaseBtn = document.getElementById('decrease-qty');
+            const addToCartBtn = document.querySelector('.add-to-cart');
+            const stock = parseInt("{{ producto.stock }}", 10) || 0;
 
-    increaseBtn.addEventListener('click', () => {
-        let currentQty = parseInt(qtyInput.value);
-        if (currentQty < stock) {
-            qtyInput.value = currentQty + 1;
+        increaseBtn.addEventListener('click', () => {
+                let currentQty = parseInt(qtyInput.value, 10);
+            if (currentQty < stock) qtyInput.value = currentQty + 1;
+        });
+
+        decreaseBtn.addEventListener('click', () => {
+                let currentQty = parseInt(qtyInput.value, 10);
+            if (currentQty > 1) qtyInput.value = currentQty - 1;
+        });
+
+            // lee carrito global (definido en base1.html)
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+            function saveCart() {
+                localStorage.setItem("cart", JSON.stringify(cart));
         }
-    });
 
-    decreaseBtn.addEventListener('click', () => {
-        let currentQty = parseInt(qtyInput.value);
-        if (currentQty > 1) {
-            qtyInput.value = currentQty - 1;
+            function updateCartDisplaySafe() {
+            if (typeof updateCartDisplay === 'function') {
+                try {updateCartDisplay(); } catch (e) {console.warn(e); }
+            }
         }
-    });
 
-    // Modificamos la función global para que tome la cantidad del input
-    function originalAddToCart(id, name, price, image) {
-        const quantity = parseInt(qtyInput.value);
-        const existing = cart.find(item => item.id === id);
-        if (existing) {
-            existing.quantity += quantity;
-        } else {
-            cart.push({ id, name, price: parseFloat(price), image: image, quantity: quantity });
+            function originalAddToCart(id, name, price, image) {
+            const quantity = Number(qtyInput.value) || 1;
+            const idStr = String(id);
+            const existing = cart.find(item => String(item.id) === idStr);
+            if (existing) {
+                existing.quantity = Number(existing.quantity || 0) + quantity;
+            } else {
+                cart.push({ id: idStr, name: name, price: parseFloat(price) || 0, image: image || '', quantity: quantity });
+            }
+            saveCart();
+            updateCartDisplaySafe();
+            // abrir offcanvas si se desea (mantener comportamiento actual)
+            try {new bootstrap.Offcanvas(document.getElementById('carritoOffcanvas')).show(); } catch (err) { }
         }
-        localStorage.setItem("cart", JSON.stringify(cart));
-        updateCartDisplay();
-        // Opcional: mostrar una notificación o abrir el carrito
-        new bootstrap.Offcanvas(document.getElementById('carritoOffcanvas')).show();
-    }
 
-    addToCartBtn.addEventListener('click', () => {
-        originalAddToCart(
+        addToCartBtn.addEventListener('click', (e) => {
+                // evita que otros listeners (p. ej. el global en base1.html) también ejecuten
+                e.preventDefault();
+            e.stopImmediatePropagation();
+
+            // evitar doble click rápido
+            if (addToCartBtn.disabled) return;
+            addToCartBtn.disabled = true;
+
+            originalAddToCart(
             addToCartBtn.dataset.id,
             addToCartBtn.dataset.name,
             addToCartBtn.dataset.price,
             addToCartBtn.dataset.image
-        );
+            );
+
+            // feedback breve y reactivar botón
+            const originalHTML = addToCartBtn.innerHTML;
+            addToCartBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Añadido';
+            addToCartBtn.classList.remove('btn-danger');
+            addToCartBtn.classList.add('btn-success');
+
+            setTimeout(() => {
+                addToCartBtn.innerHTML = originalHTML;
+            addToCartBtn.classList.remove('btn-success');
+            addToCartBtn.classList.add('btn-danger');
+            addToCartBtn.disabled = false;
+            }, 900);
+        });
     });
-});
+    
 </script>
+
 
 {% endblock %}

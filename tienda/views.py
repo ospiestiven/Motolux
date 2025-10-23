@@ -94,7 +94,7 @@ def payu_confirmation(request):
         value,
         currency,
         state_pol,
-        secret_key=getattr(settings, "PAYU_SECRET_KEY", None)
+        secret_key=settings.PAYU_API_KEY
     )
 
     if expected_sign == sign_received:
@@ -311,18 +311,125 @@ def eliminar_usuario(request, id):
     return redirect('usuarios')
 
 
+#index admin
+# ...existing code...
+from django.db.models import Sum, Count
+from datetime import datetime, timedelta
+import json
+# ...existing code...
+
 def index_admin(request):
+    """
+    Dashboard admin: prepara KPIs, series de ventas (últimos 30 días),
+    top productos por unidades vendidas, estado de pedidos y pedidos recientes.
+    """
+    # 1. Obtener y validar el rango de fechas desde el request
+    today = datetime.now().date()
+    end_date_str = request.GET.get('end_date', today.strftime('%Y-%m-%d'))
+    start_date_str = request.GET.get('start_date', (today - timedelta(days=29)).strftime('%Y-%m-%d'))
+
+    try:
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        end_date = today
+        start_date = today - timedelta(days=29)
+
+    if start_date > end_date:
+        start_date, end_date = end_date, start_date # Swap
+
+    # KPIs básicos
     total_productos = Producto.objects.count()
     total_usuarios = Usuario.objects.count()
     total_categorias = Categoria.objects.count()
-    total_pedidos = Pedido.objects.count()
-    return render(request, 'tienda/admin/index_admin.html', {
+    total_pedidos = Pedido.objects.filter(fecha__date__range=[start_date, end_date]).count()
+    
+    # Consideramos solo pedidos pagados para los ingresos
+    pedidos_pagados = Pedido.objects.filter(estado__in=['Procesando', 'Entregado'], fecha__date__range=[start_date, end_date])
+
+    # Ventas en el rango de fechas (por día)
+    sales_labels = []
+    sales_data = []
+    delta = end_date - start_date
+    for i in range(delta.days + 1):
+        day = start_date + timedelta(days=i)
+        sales_labels.append(day.strftime("%d %b"))
+        day_total = (
+            pedidos_pagados.filter(fecha__date=day)
+            .aggregate(total=Sum('total'))['total'] or 0
+        )
+        sales_data.append(float(day_total))
+
+    # Top productos por unidades vendidas en el rango de fechas
+    top_products_qs = (
+        CarritoProductoPedido.objects
+        .filter(pedido__estado__in=['Procesando', 'Entregado'],
+                pedido__fecha__date__range=[start_date, end_date])
+        .values('producto__id', 'producto__nombre')
+        .annotate(units_sold=Sum('cantidad'))
+        .order_by('-units_sold')[:6]
+    )
+    top_products_labels = [p['producto__nombre'] for p in top_products_qs]
+    top_products_data = [int(p['units_sold'] or 0) for p in top_products_qs]
+
+    # Estado de pedidos (conteo por estado) en el rango de fechas
+    orders_status_qs = (
+        Pedido.objects.filter(fecha__date__range=[start_date, end_date])
+        .values('estado')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+    orders_status_labels = [o['estado'] for o in orders_status_qs]
+    orders_status_data = [int(o['count']) for o in orders_status_qs]
+
+    # Pedidos recientes (últimos 8)
+    recent_orders_qs = (
+        Pedido.objects.select_related('usuario__user')
+        .order_by('-fecha')[:8]
+    )
+    recent_orders = []
+    for p in recent_orders_qs:
+        recent_orders.append({
+            'id': p.id,
+            'user_name': getattr(p.usuario.user, 'get_full_name', lambda: "")() or p.usuario.user.username,
+            'user_email': p.usuario.user.email, # Mantener email por si el nombre no está
+            'total': float(p.total or 0),
+            'status': p.estado,
+            'created_at': p.fecha.strftime("%Y-%m-%d %H:%M") if getattr(p, 'fecha', None) else ''
+        })
+
+    # Productos con bajo stock
+    low_stock_products = Producto.objects.filter(stock__lte=5).order_by('stock')[:8]
+
+    # Productos que nunca se han vendido
+    sold_product_ids = (
+        CarritoProductoPedido.objects
+        .filter(pedido__estado__in=['Procesando', 'Entregado'])
+        .values_list('producto_id', flat=True).distinct()
+    )
+    unsold_products = Producto.objects.exclude(id__in=sold_product_ids).order_by('nombre')[:5]
+
+    context = {
+        'start_date': start_date.strftime('%Y-%m-%d'),
+        'end_date': end_date.strftime('%Y-%m-%d'),
         'total_productos': total_productos,
         'total_usuarios': total_usuarios,
         'total_categorias': total_categorias,
         'total_pedidos': total_pedidos,
-    })
-    return render(request, 'tienda/admin/index_admin.html')
+        'sales_labels': json.dumps(sales_labels),
+        'sales_data': json.dumps(sales_data),
+        'top_products_labels': json.dumps(top_products_labels),
+        'top_products_data': json.dumps(top_products_data),
+        'orders_status_labels': json.dumps(orders_status_labels),
+        'orders_status_data': json.dumps(orders_status_data),
+        'recent_orders': recent_orders,
+        'low_stock_products': low_stock_products,
+        'unsold_products': unsold_products,
+        'currency': getattr(settings, 'PAYU_CURRENCY', 'COP'),
+    }
+
+    return render(request, 'tienda/admin/index_admin.html', context)
+# ...existing code...
 
 
 def base_admin(request):
@@ -381,6 +488,11 @@ def transactions(request):
     lista_transacciones = Transaccion.objects.select_related('pedido__usuario__user').order_by('-fecha')
     return render(request, 'tienda/admin/pedidos/transactions.html', {'transacciones': lista_transacciones})
 
+def transaction_detail(request, transaction_id):
+    transaccion = get_object_or_404(Transaccion.objects.select_related('pedido__usuario__user'), id=transaction_id)
+    return render(request, 'tienda/admin/pedidos/transaction_detail.html', {
+        'transaccion': transaccion
+    })
 
 
 # Detalles de facturación

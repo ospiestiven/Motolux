@@ -15,15 +15,11 @@ import hashlib
 
 def generate_payment_signature(api_key: str, merchant_id: str, reference_code: str, amount: str, currency: str, secret_key: str = None) -> str:
     """
-    Genera la firma para el formulario WebCheckout de PayU (sandbox).
-    Cadena base: ApiKey~merchantId~referenceCode~amount~currency
     Genera la firma para el formulario WebCheckout de PayU.
     Cadena base: apiKey~merchantId~referenceCode~amount~currency
     """
-    base = f"{api_key}~{merchant_id}~{reference_code}~{amount}~{currency}"
-    return hashlib.md5(base.encode("utf-8")).hexdigest()
-    secret = secret_key or api_key
-    return _hmac_sha256_hex(secret, base)
+    base_string = f"{api_key}~{merchant_id}~{reference_code}~{amount}~{currency}"
+    return hashlib.md5(base_string.encode("utf-8")).hexdigest()
 
 
 def format_confirmation_value(value_str: str) -> str:
@@ -44,5 +40,5 @@ def generate_confirmation_signature(api_key: str, merchant_id: str, reference_sa
     Cadena base: apiKey~merchant_id~reference_sale~new_value~currency~state_pol
     """
     new_value = format_confirmation_value(value) # Usamos la función de formato
-    base = f"{api_key}~{merchant_id}~{reference_sale}~{new_value}~{currency}~{state_pol}"
-    return hashlib.md5(base.encode("utf-8")).hexdigest()
+    base_string = f"{api_key}~{merchant_id}~{reference_sale}~{new_value}~{currency}~{state_pol}"
+    return hashlib.md5(base_string.encode("utf-8")).hexdigest()
