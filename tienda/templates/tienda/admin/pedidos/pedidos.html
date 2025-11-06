@@ -1,5 +1,5 @@
 {% extends 'tienda/admin/layouts/base.html' %}
-
+{% load static humanize %}
 {% block title %}Gestión de Pedidos{% endblock %}
 
 {% block content %}
@@ -32,7 +32,7 @@
                 <td>{{ pedido.fecha|date:"d/m/Y H:i" }}</td>
                 <td>{{ pedido.usuario.user.get_full_name|default:pedido.usuario.user.username }}</td>
                 <td>{{ pedido.usuario.user.email }}</td>
-                <td class="text-success fw-bold">${{ pedido.total|floatformat:2 }}</td>
+                <td class="text-success fw-bold">${{ pedido.total|intcomma }}</td>
                 <td>
                     <span class="badge 
                         {% if pedido.estado == 'Entregado' %}bg-success

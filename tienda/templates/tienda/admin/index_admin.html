@@ -1,10 +1,8 @@
 {% extends "tienda/admin/layouts/base.html" %}
-{% load static %}
+{% load static humanize %}
 {% block title %}Inicio - Motolux{% endblock %}
 
 {% block content %}
-{% include 'tienda/admin/includes/sidebar.html' %}
-
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center flex-wrap mt-4 mb-4">
         <h1 class="h2 mb-0">Dashboard</h1>
@@ -153,14 +151,14 @@
                                 <tr>
                                     <td class="fw-semibold">{{ pedido.id }}</td>
                                     <td>{{ pedido.user_name|default:pedido.user_email }}</td>
-                                    <td class="text-danger fw-semibold">{{ pedido.total|floatformat:2 }}</td>
+                                    <td class="text-danger fw-semibold">{{ pedido.total|intcomma }}</td>
                                     <td>
                                         <span class="badge
-                                          {% if pedido.status == 'Pendiente' %}bg-warning text-dark
-                                          {% elif pedido.status == 'Procesando' %}bg-info
-                                          {% elif pedido.status == 'Entregado' %}bg-success
-                                          {% elif pedido.status == 'Cancelado' %}bg-danger
-                                          {% else %}bg-secondary{% endif %}">
+                                            {% if pedido.status == 'Pendiente' %}bg-warning text-dark
+                                            {% elif pedido.status == 'Procesando' %}bg-info
+                                            {% elif pedido.status == 'Entregado' %}bg-success
+                                            {% elif pedido.status == 'Cancelado' %}bg-danger
+                                            {% else %}bg-secondary{% endif %}">
                                             {{ pedido.status|capfirst }}
                                         </span>
                                     </td>
@@ -284,6 +282,4 @@
     }
 });
 </script>
-
-
 {% endblock %}

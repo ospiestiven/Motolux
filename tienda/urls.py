@@ -45,6 +45,7 @@ urlpatterns = [
    
     path('eliminar-producto/<int:id>/', views.eliminar_producto, name='eliminar_producto'),
     path('productos/editar-producto/<int:id>/', views.editar_producto, name='editar_producto'),
+    path('productos/eliminar_imagenes/<int:id>/', views.eliminar_imagenes_producto, name='eliminar_imagenes_producto'),
    
     # Categorias admin
     path('categorias/', views.categorias, name='categorias'),

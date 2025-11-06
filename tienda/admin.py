@@ -1,7 +1,7 @@
 
 
 from django.contrib import admin
-from .models import Categoria, Producto, Rol,  Usuario, Pedido, CarritoProductoPedido
+from .models import Categoria, Producto, Rol,  Usuario, Pedido, CarritoProductoPedido, ProductoImagen, Transaccion
 
 # Personalización del modelo Categoria
 @admin.register(Categoria)
@@ -10,13 +10,26 @@ class CategoriaAdmin(admin.ModelAdmin):
     search_fields = ('nombre',)  # Agregar barra de búsqueda
 
 
+# Define una vista "en línea" para las imágenes adicionales
+class ProductoImagenInline(admin.TabularInline):
+    model = ProductoImagen
+    extra = 1  # Cuántos campos de subida de imagen mostrar por defecto
+    readonly_fields = ('imagen_preview',)
+
+    def imagen_preview(self, obj):
+        from django.utils.html import mark_safe
+        if obj.imagen:
+            return mark_safe(f'<img src="{obj.imagen.url}" width="150" height="150" style="object-fit: cover;" />')
+        return "No Image"
+    imagen_preview.short_description = 'Vista Previa'
+
 # Personalización del modelo Producto
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre', 'categoria', 'precio', 'stock')  # Mostrar columnas
+    list_display = ('id', 'nombre', 'modelo', 'categoria', 'precio', 'stock')  # Mostrar columnas
     list_filter = ('categoria',)  # Agregar filtros por categoría
-    search_fields = ('nombre', 'descripcion')  # Agregar barra de búsqueda
-
+    search_fields = ('nombre', 'modelo', 'descripcion')  # Agregar barra de búsqueda
+    inlines = [ProductoImagenInline] # ¡Aquí conectamos las imágenes!
 
 # Personalización del modelo Rol
 @admin.register(Rol)
@@ -55,6 +68,10 @@ class CarritoProductoPedidoAdmin(admin.ModelAdmin):
     list_display = ('id', 'pedido', 'producto', 'cantidad', 'total')
     list_filter = ('pedido', 'producto')  # Agregar filtros por pedido y producto
     search_fields = ('producto__nombre',)  # Búsqueda por nombre del producto
+
+# Registra los otros modelos para que aparezcan en el admin
+admin.site.register(ProductoImagen)
+admin.site.register(Transaccion)
 
 
 # Personalización general del sitio de administración

@@ -1,10 +1,8 @@
 {% extends "tienda/admin/layouts/base.html" %}
-{% load static %}
+{% load static humanize %}
 {% block title %}Productos - Motolux{% endblock %}
 
 {% block content %}
-{% include 'tienda/admin/includes/sidebar.html' %}
-
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
     <div>
         <h2 class="h4">Productos</h2>
@@ -18,12 +16,12 @@
             <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
             Agregar Producto
         </button>
-        <!-- Modal Agregar Producto -->
+
         <!-- Modal Agregar Producto -->
         <div class="modal fade" id="agregarProductoModal" tabindex="-1" aria-labelledby="agregarProductoLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="" method="post" enctype="multipart/form-data">
+            <div class="modal-content"> 
+                <form action="{% url 'productos' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="modal-header">
                         <h5 class="modal-title" id="agregarProductoLabel">Agregar Producto</h5>
@@ -32,12 +30,30 @@
                     <div class="modal-body">
                         <div class="container-fluid">
                             {% for field in formulario %}
+                            {% if field.name != 'imagenes' %}
                             <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                    {% if field.help_text %}
+                                    <small class="text-muted d-block">{{ field.help_text }}</small>
+                                    {% endif %}
+                                </label>
                                 {{ field }}
+                                {% if field.errors %}
                                 <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
                             </div>
+                            {% endif %}
                             {% endfor %}
+                    
+                            <!-- Campo explícito para las imágenes adicionales -->
+                            <div class="mb-3">
+                                <label for="id_imagenes_adicionales" class="form-label">
+                                    Imágenes adicionales
+                                    <small class="text-muted d-block">Puedes seleccionar varias imágenes a la vez</small>
+                                </label>
+                                <input type="file" name="imagenes_adicionales" id="id_imagenes_adicionales" class="form-control" multiple>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -66,6 +82,7 @@
             <tr>
                 <th class="border-gray-200">ID</th>
                 <th class="border-gray-200">Nombre</th>
+                <th class="border-gray-200">Modelo</th>
                 <th class="border-gray-200">Imagen</th>
                 <th class="border-gray-200">Precio</th>
                 <th class="border-gray-200">Stock</th>
@@ -77,6 +94,7 @@
             <tr>
                 <td>{{ producto.id }}</td>
                 <td>{{ producto.nombre }}</td>
+                <td>{{ producto.modelo|default:"-" }}</td>
                 <td>
                     {% if producto.imagen %}
                         <img src="{{ producto.imagen.url }}" width="60" class="img-thumbnail" alt="{{ producto.nombre }}">
@@ -84,7 +102,7 @@
                         <span class="text-muted">Sin imagen</span>
                     {% endif %}
                 </td>
-                <td>${{ producto.precio }}</td>
+                <td>${{ producto.precio|intcomma }}</td>
                 <td>{{ producto.stock }}</td>
                 <td>
                     <div class="btn-group">
@@ -94,6 +112,8 @@
                             data-bs-target="#editarProductoModal{{ producto.id }}">
                             Editar
                         </button>
+                        
+                        
 
                         <button type="button"
                             class="btn btn-sm btn-outline-danger"
@@ -127,45 +147,101 @@
             </div>
 
             <!-- Modal para editar -->
-            <div class="modal fade" id="editarProductoModal{{ producto.id }}" tabindex="-1"                         aria-labelledby="editarProductoLabel{{ producto.id }}" aria-hidden="true">
-                <div class="modal-dialog">
+            <div class="modal fade" id="editarProductoModal{{ producto.id }}" tabindex="-1"
+                aria-labelledby="editarProductoLabel{{ producto.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
+                        <!-- Form principal: editar datos del producto -->
                         <form action="{% url 'editar_producto' producto.id %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title" id="editarProductoLabel{{ producto.id }}">Editar Producto</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
+            
                             <div class="modal-body">
-                                <div class="mb-3">
-                                    <label class="form-label">Nombre</label>
-                                    <input type="text" name="nombre" class="form-control" value="{{ producto.nombre }}" required>
+                                <div class="row g-3">
+                                    <div class="col-md-7">
+                                        <div class="mb-3">
+                                            <label class="form-label">Nombre</label>
+                                            <input type="text" name="nombre" class="form-control" value="{{ producto.nombre }}"
+                                                required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Modelo de Moto</label>
+                                            <input type="text" name="modelo" class="form-control"
+                                                value="{{ producto.modelo|default_if_none:'' }}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Descripción</label>
+                                            <textarea name="descripcion" class="form-control"
+                                                rows="3">{{ producto.descripcion }}</textarea>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Precio (sin comas ni puntos)</label>
+                                                <input type="number" name="precio" class="form-control"
+                                                    value="{{ producto.precio }}" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Stock</label>
+                                                <input type="number" name="stock" class="form-control" value="{{ producto.stock }}"
+                                                    required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Imagen principal</label>
+                                            <input type="file" name="imagen" class="form-control">
+                                            {% if producto.imagen %}
+                                            <img src="{{ producto.imagen.url }}" width="80" class="img-thumbnail mt-2"
+                                                alt="{{ producto.nombre }}">
+                                            {% endif %}
+                                        </div>
+                                    </div>
+            
+                                    <div class="col-md-5">
+                                        <h6 class="mb-2">Imágenes adicionales</h6>
+                                        <div class="mb-3 d-flex flex-wrap gap-2">
+                                            {% for img_adicional in producto.imagenes_adicionales.all %}
+                                            <div class="position-relative">
+                                                <img src="{{ img_adicional.imagen.url }}" width="100" class="img-thumbnail"
+                                                    alt="Imagen adicional">
+                                            </div>
+                                            {% empty %}
+                                            <p class="text-muted small">No hay imágenes adicionales.</p>
+                                            {% endfor %}
+                                        </div>
+            
+                                        <!-- Campo para añadir imágenes (misma acción que el otro formulario, pero name único) -->
+                                        <div class="mb-3">
+                                            <label for="id_imagenes_adicionales_edit_{{ producto.id }}" class="form-label">Añadir
+                                                nuevas imágenes</label>
+                                            <input type="file" name="imagenes_adicionales"
+                                                id="id_imagenes_adicionales_edit_{{ producto.id }}" class="form-control" multiple>
+                                            <div class="form-text">Selecciona varios archivos si lo deseas.</div>
+                                        </div>
+            
+                                        <!-- Acción: guardar cambios (edición) -->
+                                        <div class="mt-3">
+                                            <button type="submit" name="guardar_producto" class="btn btn-primary w-100">Guardar
+                                                cambios</button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Descripcion</label>
-                                    <textarea name="descripcion" class="form-control" rows="3">{{ producto.descripcion }}</textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Precio (sin comas ni puntos)</label>
-                                    <input type="number" name="precio" class="form-control" value="{{ producto.precio }}" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Stock</label>
-                                    <input type="number" name="stock" class="form-control" value="{{ producto.stock }}" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Imagen</label>
-                                    <input type="file" name="imagen" class="form-control">
-                                    {% if producto.imagen %}
-                                    <img src="{{ producto.imagen.url }}" width="60" class="img-thumbnail mt-2" alt="{{ producto.nombre }}">
-                                    {% endif %}
-                                </div>
-                                <!-- Agrega más campos según tu modelo si es necesario -->
                             </div>
+            
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                             </div>
+                        </form>
+            
+                        <!-- Botón / formulario separado para eliminar todas las imágenes adicionales -->
+                        <form action="{% url 'eliminar_imagenes_producto' producto.id %}" method="post" class="p-3 border-top">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('¿Eliminar TODAS las imágenes adicionales?')">
+                                <i class="bi bi-trash"></i> Eliminar todas las imágenes adicionales
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -173,10 +249,11 @@
             
             {% empty %}
             <tr>
-                <td colspan="6" class="text-center">No hay productos registrados.</td>
+                <td colspan="7" class="text-center">No hay productos registrados.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
 {% endblock %}

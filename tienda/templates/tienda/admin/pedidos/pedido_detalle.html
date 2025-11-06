@@ -1,5 +1,5 @@
 {% extends 'tienda/admin/layouts/base.html' %}
-
+{% load static humanize %}
 {% block title %}Detalle del Pedido #{{ pedido.id }}{% endblock %}
 
 {% block content %}
@@ -51,7 +51,7 @@
             <div class="card shadow">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 font-weight-bold text-danger"> Detalles del Pedido</h6>
-                    <span class="badge bg-primary text-white p-2">Total: ${{ pedido.total|floatformat:2 }}</span>
+                    <span class="badge bg-primary text-white p-2">Total: ${{ pedido.total|intcomma }}</span>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -69,8 +69,8 @@
                                 <tr>
                                     <td>{{ item.producto.nombre }}</td>
                                     <td>{{ item.cantidad }}</td>
-                                    <td>${{ item.producto.precio|floatformat:2 }}</td>
-                                    <td>${{ item.total|floatformat:2 }}</td>
+                                    <td>${{ item.producto.precio|intcomma }}</td>
+                                    <td>${{ item.total|intcomma }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -128,7 +128,7 @@
                                     <tr>
                                         <td><small>{{ t.id_transaccion_payu }}</small></td>
                                         <td>{{ t.fecha|date:"d/m/Y H:i" }}</td>
-                                        <td class="text-success fw-bold">${{ t.valor|floatformat:2 }} {{ t.moneda }}</td>
+                                        <td class="text-success fw-bold">${{ t.valor|intcomma }} {{ t.moneda }}</td>
                                         <td>{{ t.metodo_pago_nombre|default:"-" }}</td>
                                         <td>
                                             {% if t.estado_pol == '4' %}

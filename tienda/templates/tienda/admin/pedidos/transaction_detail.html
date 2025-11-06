@@ -1,5 +1,5 @@
 {% extends 'tienda/admin/layouts/base.html' %}
-
+{% load static humanize %}
 {% block title %}Detalle de Transacción{% endblock %}
 
 {% block content %}
@@ -31,7 +31,7 @@
                             <p><strong>ID de Transacción PayU:</strong> {{ transaccion.id_transaccion_payu }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Valor:</strong> <span class="fw-bold text-success">${{ transaccion.valor|floatformat:2 }} {{ transaccion.moneda }}</span></p>
+                            <p><strong>Valor:</strong> <span class="fw-bold text-success">${{ transaccion.valor|intcomma }} {{ transaccion.moneda }}</span></p>
                             <p><strong>Método de Pago:</strong> {{ transaccion.metodo_pago_nombre|default:"No especificado" }}</p>
                             <p><strong>Estado PayU:</strong>
                                 {% if transaccion.estado_pol == '4' %}

@@ -1,5 +1,5 @@
 {% extends 'tienda/admin/layouts/base.html' %}
-
+{% load static humanize %}
 {% block title %}Registro de Transacciones{% endblock %}
 
 {% block content %}
@@ -38,7 +38,7 @@
                             </td>
                             <td>{{ transaccion.fecha|date:"d/m/Y H:i" }}</td>
                             <td>{{ transaccion.pedido.usuario.user.get_full_name|default:"-" }}</td>
-                            <td class="text-success fw-bold">${{ transaccion.valor|floatformat:2 }} {{ transaccion.moneda }}</td>
+                            <td class="text-success fw-bold">${{ transaccion.valor|intcomma }} {{ transaccion.moneda }}</td>
                             <td>{{ transaccion.metodo_pago_nombre }}</td>
                             <td>
                                 {% if transaccion.estado_pol == '4' %}

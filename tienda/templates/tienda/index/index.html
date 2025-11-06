@@ -1,5 +1,5 @@
 {% extends 'tienda/index/base1.html' %}
-{% load static %}
+{% load static humanize %}
 {% block title %}Inicio - Motolux{% endblock %}
 
 
@@ -71,18 +71,16 @@
       <div class="card producto w-100 shadow-sm border-0">
         <a href="{% url 'producto_detalle' producto.id %}" class="text-decoration-none text-dark">
           <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">{{ producto.nombre }}</h5>
-            <p class="card-text">{{ producto.descripcion }}</p>
-            <p class="precio mt-auto">${{ producto.precio }}</p>
         </a>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ producto.nombre }}</h5>
+          <p class="card-text text-muted">{{ producto.modelo|default_if_none:"" }}</p>
+          <p class="precio mt-auto">${{ producto.precio|intcomma }}</p>
+        </div>
         <button class="btn btn-danger w-100 mt-2 add-to-cart" data-id="{{ producto.id }}" data-name="{{ producto.nombre }}"
           data-price="{{ producto.precio }}" data-image="{{ producto.imagen.url }}">
           <i class="bi bi-cart2"></i> Añadir al carrito
         </button>
-        
-        
-        </div>
     </div>
   </div>
   
@@ -97,14 +95,14 @@
     <div class="row text-center text-md-start">
       <div class="col-md-4 mb-4 mb-md-0">
         <h3 class="text-danger border-bottom pb-2 mb-3" style="border-color:#DD0B15 !important;">Contáctenos</h3>
-        <p>📍 Calle 41 No. 85a 24 Lotus, Rionegro, Colombia</p>
-        <p>📞 (555) 123-4567</p>
-        <p>✉️ restaurante@gmail.com</p>
+        <p> Rionegro, Colombia</p>
+        <p>(555) 123-4567</p>
+        <p>Motolux@gmail.com</p>
       </div>
       <div class="col-md-4 mb-4 mb-md-0">
         <h3 class="text-danger border-bottom pb-2 mb-3" style="border-color:#DD0B15 !important;">Horario</h3>
-        <p>Lunes - Viernes: 11:00 AM - 10:00 PM</p>
-        <p>Sábados y Domingos: 10:00 AM - 11:00 PM</p>
+        <p>Lunes - Viernes: 8:00 AM - 5:00 PM</p>
+        <p>Sábados y Domingos: 8:00 AM - 1:00 PM</p>
       </div>
       <div class="col-md-4">
         <h3 class="text-danger border-bottom pb-2 mb-3" style="border-color:#DD0B15 !important;">Síguenos</h3>
@@ -121,7 +119,7 @@
       </div>
     </div>
     <div class="text-center mt-4 copyright pt-3 border-top border-secondary">
-      <p class="mb-0">© 2025 Motolux. Todos los derechos reservados.</p>
+      <p class="mb-0">© 2025 Motolux-Estiven Ospina. Todos los derechos reservados.</p>
     </div>
   </div>
 </footer>

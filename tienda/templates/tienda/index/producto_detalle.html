@@ -1,5 +1,5 @@
 {% extends 'tienda/index/base1.html' %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}{{ producto.nombre }} - Motolux{% endblock %}
 
@@ -8,21 +8,63 @@
 <div class="container my-5">
     <!-- Breadcrumbs (Migas de pan) -->
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <ol class="breadcrumb align-items-center">
+            <li class="breadcrumb-item">
+                <a href="{% url 'index' %}" class="text-dark text-decoration-none breadcrumb-link">
+                    <i class="bi bi-house"></i> Inicio
+                </a>
+            </li>
+    
             {% if producto.categoria %}
-            <li class="breadcrumb-item"><a href="{% url 'productos_por_categoria' producto.categoria.id %}">{{ producto.categoria.nombre }}</a></li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'productos_por_categoria' producto.categoria.id %}"
+                    class="text-dark text-decoration-none breadcrumb-link">
+                    <i class="bi bi-folder"></i> {{ producto.categoria.nombre }}
+                </a>
+            </li>
             {% endif %}
-            <li class="breadcrumb-item active" aria-current="page">{{ producto.nombre }}</li>
+    
+            <li class="breadcrumb-item active text-muted" aria-current="page">
+                <i class="bi bi-box-seam"></i> {{ producto.nombre }}
+            </li>
         </ol>
     </nav>
 
+
     <div class="row">
         <!-- Columna de la imagen del producto -->
-        <div class="col-md-6 mb-4 mb-md-0">
-            <div class="card shadow-sm border-0">
-                <img src="{{ producto.imagen.url }}" class="card-img-top rounded" alt="{{ producto.nombre }}">
+        <div class="col-md-6 mb-4">
+            <!-- Imagen Principal -->
+            <div class="mb-3">
+                <img id="main-product-image" src="{{ producto.imagen.url }}" class="img-fluid rounded shadow-sm w-100" alt="{{ producto.nombre }}" style="max-height: 500px; object-fit: cover;">
             </div>
+
+            <!-- Miniaturas -->
+            {% if producto.imagen or imagenes_adicionales %}
+            <div class="d-flex flex-wrap gap-2">
+                <!-- Miniatura de la imagen principal -->
+                {% if producto.imagen %}
+                <div class="thumbnail-container">
+                    <img src="{{ producto.imagen.url }}" class="img-thumbnail active" alt="Imagen principal" 
+                         style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                         onclick="changeMainImage('{{ producto.imagen.url }}', this)">
+                </div>
+                {% endif %}
+                <!-- Miniaturas de las imágenes adicionales -->
+                {% for img_adicional in imagenes_adicionales %}
+                <div class="thumbnail-container">
+                    <img src="{{ img_adicional.imagen.url }}" class="img-thumbnail" alt="Miniatura {{ forloop.counter }}" 
+                         style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                         onclick="changeMainImage('{{ img_adicional.imagen.url }}', this)">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <style>
+                .img-thumbnail.active {
+                    border: 2px solid #DD0B15;
+                }
+            </style>
         </div>
 
         <!-- Columna de los detalles del producto -->
@@ -30,10 +72,11 @@
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body d-flex flex-column">
                     <h1 class="card-title fw-bold">{{ producto.nombre }}</h1>
+                    {% if producto.modelo %}
+                        <p class="text-muted mb-2"><strong>Modelo:</strong> {{ producto.modelo }}</p>
+                    {% endif %}
                     
-                    <h2 class="precio my-3 text-danger fw-bolder">${{ producto.precio|floatformat:2 }}</h2>
-
-                    <p class="card-text text-muted">{{ producto.descripcion|linebreaks }}</p>
+                    <h2 class="precio my-3 text-danger fw-bolder">${{ producto.precio|intcomma }}</h2>
 
                     <div class="mt-auto">
                         {% if producto.stock > 0 %}
@@ -54,7 +97,8 @@
                         <div class="d-grid gap-2">
                             <button class="btn btn-danger btn-lg add-to-cart" 
                                     data-id="{{ producto.id }}"
-                                    data-name="{{ producto.nombre }}" 
+                                    data-name="{{ producto.nombre }}"
+                                    data-name="{{ producto.modelo }}"
                                     data-price="{{ producto.precio }}"
                                     data-image="{{ producto.imagen.url }}" 
                                     {% if not producto.stock > 0 %}disabled{% endif %}>
@@ -62,6 +106,20 @@
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Descripción -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light border-0">
+                    <h5 class="mb-0">Descripción del Producto</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="card-text text-muted">{{ producto.descripcion|linebreaks }}</p>
                 </div>
             </div>
         </div>
@@ -83,7 +141,7 @@
                     <h6 class="card-title">
                         <a href="{% url 'producto_detalle' rel_producto.id %}" class="text-dark text-decoration-none">{{ rel_producto.nombre }}</a>
                     </h6>
-                    <p class="precio mt-auto">${{ rel_producto.precio|floatformat:2 }}</p>
+                    <p class="precio mt-auto">${{ rel_producto.precio|intcomma }}</p>
                 </div>
             </div>
         </div>
@@ -94,6 +152,22 @@
 
 
 <script>
+    function changeMainImage(newSrc, clickedThumbnail) {
+        // Cambia la imagen principal
+        document.getElementById('main-product-image').src = newSrc;
+
+        // Actualiza el borde activo en las miniaturas
+        const thumbnails = document.querySelectorAll('.thumbnail-container img');
+        thumbnails.forEach(thumb => {
+            thumb.classList.remove('active');
+            if (thumb === clickedThumbnail) {
+                thumb.classList.add('active');
+            } else {
+                thumb.classList.remove('active');
+            }
+        });
+    }
+
     
         document.addEventListener('DOMContentLoaded', function () {
         const qtyInput = document.getElementById('quantity-input');

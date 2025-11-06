@@ -26,8 +26,9 @@ class Categoria(models.Model):
 
 class Producto(models.Model):
     nombre = models.CharField(max_length=200,verbose_name="Nombre")
+    modelo = models.CharField(max_length=100, blank=True, null=True, verbose_name="Modelo de Moto")
     descripcion = models.TextField(max_length=200,verbose_name="Descripción")
-    precio = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)],verbose_name="Precio")
+    precio = models.DecimalField(max_digits=10, decimal_places=0, validators=[MinValueValidator(0)],verbose_name="Precio")
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='productos',verbose_name="Categoría")
     imagen = models.ImageField(upload_to='productos/', verbose_name="Imagen")
     stock = models.PositiveIntegerField(default=0,verbose_name="Stock")
@@ -39,6 +40,14 @@ class Producto(models.Model):
     def delete (self, using=None, keep_parents=False):
         self.imagen.storage.delete(self.imagen.name)  # Elimina la imagen del sistema de archivos
         super().delete()
+
+
+class ProductoImagen(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='imagenes_adicionales')
+    imagen = models.ImageField(upload_to='productos/adicionales/', verbose_name="Imagen Adicional")
+
+    def __str__(self):
+        return f"Imagen para {self.producto.nombre}"
 
 
 class Usuario(models.Model):
@@ -71,7 +80,7 @@ class Pedido(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='pedidos')
     
     fecha = models.DateTimeField(auto_now_add=True)
-    total = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    total = models.DecimalField(max_digits=10, decimal_places=0, validators=[MinValueValidator(0)])
     estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente')
 
     def __str__(self):
@@ -83,7 +92,7 @@ class CarritoProductoPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='carritos')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='carritos')
     cantidad = models.PositiveIntegerField(validators=[MinValueValidator(1)])
-    total = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    total = models.DecimalField(max_digits=10, decimal_places=0, validators=[MinValueValidator(0)])
 
     def __str__(self):
         return f"Carrito {self.id} - Pedido: {self.pedido.id}"

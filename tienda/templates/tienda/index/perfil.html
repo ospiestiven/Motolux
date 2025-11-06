@@ -1,5 +1,5 @@
 {% extends 'tienda/index/base1.html' %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}Perfil de Usuario - Motolux{% endblock %}
 
@@ -120,7 +120,7 @@
                 <tr>
                   <td>{{ pedido.id }}</td>
                   <td>{{ pedido.fecha|date:"d/m/Y" }}</td>
-                  <td>${{ pedido.total|floatformat:2 }}</td>
+                  <td>${{ pedido.total|intcomma }}</td>
                   <td>
                     <span
                       class="badge {% if pedido.estado == 'Entregado' %}bg-success{% elif pedido.estado == 'Procesando' %}bg-info{% elif pedido.estado == 'Cancelado' %}bg-danger{% else %}bg-warning{% endif %}">
@@ -168,14 +168,14 @@
                     <tr>
                       <td>{{ item.producto.nombre }}</td>
                       <td>{{ item.cantidad }}</td>
-                      <td>${{ item.producto.precio|floatformat:2 }}</td>
-                      <td>${{ item.total|floatformat:2 }}</td>
+                      <td>${{ item.producto.precio|intcomma }}</td>
+                      <td>${{ item.total|intcomma }}</td>
                     </tr>
                     {% endfor %}
                   </tbody>
                 </table>
                 <hr>
-                <h5 class="text-end">Total del Pedido: <span class="text-danger">${{ pedido.total|floatformat:2 }}</span></h5>
+                <h5 class="text-end">Total del Pedido: <span class="text-danger">${{ pedido.total|intcomma }}</span></h5>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

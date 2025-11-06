@@ -8,9 +8,9 @@ from django.conf import settings
 import json
 from decimal import Decimal
 from django.db import transaction
-import time 
-from .models import Producto, Rol, Categoria, Usuario, Pedido, CarritoProductoPedido, Transaccion
-from .forms import ProductoForm, categoriaForm, UsuarioForm
+
+from .models import Producto, Rol, Categoria, Usuario, Pedido, CarritoProductoPedido, Transaccion, ProductoImagen
+from .forms import ProductoForm, categoriaForm, UsuarioForm, ProductoImagenForm
 from .utils import generate_payment_signature, generate_confirmation_signature  # ✅ importamos desde utils
 
 
@@ -152,7 +152,7 @@ def payu_response(request):
     """
     params = request.POST.dict() if request.method == "POST" else request.GET.dict()
     state_pol = params.get("state_pol")
-    return render(request, "tienda/payu_response.html", {"params": params, "state_pol": state_pol})
+    return render(request, "tienda/payu_response.html", {F"params": params, "state_pol": state_pol})
 
 
 
@@ -178,10 +178,13 @@ def productos_por_categoria(request, categoria_id):
 def producto_detalle(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     # Obtenemos otros productos de la misma categoría para mostrarlos como sugerencias
+    imagenes_adicionales = producto.imagenes_adicionales.all()
+
     productos_relacionados = Producto.objects.filter(categoria=producto.categoria).exclude(id=producto_id)[:4]
     return render(request, 'tienda/index/producto_detalle.html', {
         'producto': producto,
-        'productos_relacionados': productos_relacionados
+        'productos_relacionados': productos_relacionados,
+        'imagenes_adicionales': imagenes_adicionales,
     })
 
 
@@ -207,17 +210,28 @@ def catalogo(request):
 #admin
 def productos(request):
     if request.method == 'POST':
-        formulario = ProductoForm(request.POST, request.FILES)
-        if formulario.is_valid():
-            formulario.save()
-            messages.success(request, "Producto agregado exitosamente.")
+        print("DEBUG request.FILES keys:", list(request.FILES.keys()))
+        form = ProductoForm(request.POST, request.FILES)
+        if not form.is_valid():
+            print("DEBUG form errors:", form.errors)  # ver qué campo falla
+        if form.is_valid():
+            producto = form.save()
+            # revisar varios nombres posibles para los ficheros según tu plantilla
+            files = request.FILES.getlist('imagenes_adicionales') or \
+                    request.FILES.getlist('imagenes') or \
+                    request.FILES.getlist('imagen') or []
+            for f in files:
+                ProductoImagen.objects.create(producto=producto, imagen=f)
+            messages.success(request, "Producto agregado correctamente.")
             return redirect('productos')
+        else:
+            messages.error(request, "Corrige los errores del formulario.")
     else:
-        formulario = ProductoForm()
-    productos = Producto.objects.all()
+        form = ProductoForm()
+    productos_qs = Producto.objects.all()
     return render(request, 'tienda/admin/productos/productos.html', {
-        'productos': productos,
-        'formulario': formulario
+        'productos': productos_qs,
+        'formulario': form,
     })
 
 #eliminar producto admin
@@ -225,19 +239,60 @@ def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
     return redirect('productos')
+
 # editar producto 
-def editar_producto(request, id):
-    producto = get_object_or_404(Producto, id=id)
+def editar_producto(request, producto_id=None, id=None):
+    """Editar un producto existente y sus imágenes."""
+    # Obtener el ID del producto (sea por producto_id o id)
+    pk = producto_id or id
+    producto = get_object_or_404(Producto, id=pk)
+
     if request.method == 'POST':
-        producto.nombre = request.POST.get('nombre')
-        producto.precio = request.POST.get('precio')
-        producto.stock = request.POST.get('stock')
-        if request.FILES.get('imagen'):
+        # Actualizar datos básicos del producto
+        producto.nombre = request.POST.get('nombre', producto.nombre)
+        producto.modelo = request.POST.get('modelo', producto.modelo)
+        producto.descripcion = request.POST.get('descripcion', producto.descripcion)
+        producto.precio = request.POST.get('precio', producto.precio)
+        producto.stock = request.POST.get('stock', producto.stock)
+        
+        # Si viene una nueva imagen principal
+        if 'imagen' in request.FILES:
+            # Opcional: eliminar imagen anterior
+            if producto.imagen:
+                producto.imagen.delete()
             producto.imagen = request.FILES['imagen']
-        producto.save()
-        messages.success(request, "Producto editado exitosamente.")
-        return redirect('productos')
-    
+
+        try:
+            # Guardar cambios del producto
+            producto.save()
+            
+            # Procesar imágenes adicionales si hay
+            imagenes = request.FILES.getlist('imagenes_adicionales')
+            for imagen in imagenes:
+                ProductoImagen.objects.create(
+                    producto=producto,
+                    imagen=imagen
+                )
+            
+            messages.success(request, "Producto actualizado correctamente.")
+        except Exception as e:
+            messages.error(request, f"Error al actualizar el producto: {str(e)}")
+            
+    return redirect('productos')
+
+
+#eliminar imagenes producto
+@login_required
+def eliminar_imagenes_producto(request, id):
+    if request.method == 'POST':
+        producto = get_object_or_404(Producto, id=id)
+        # Eliminar todas las imágenes adicionales asociadas
+        for img_adicional in producto.imagenes_adicionales.all():
+            img_adicional.imagen.delete() # Borra el archivo
+            img_adicional.delete() # Borra el registro de la BD
+        messages.success(request, "Se eliminaron todas las imágenes adicionales del producto.")
+    return redirect('productos')
+
 
 # CATEGORIAS
 def categorias(request):
@@ -429,7 +484,6 @@ def index_admin(request):
     }
 
     return render(request, 'tienda/admin/index_admin.html', context)
-# ...existing code...
 
 
 def base_admin(request):

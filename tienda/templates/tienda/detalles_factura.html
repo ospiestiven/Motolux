@@ -1,5 +1,6 @@
 {% extends 'tienda/index/base1.html' %}
-{% load static %}
+{% load static humanize %}
+
 
 {% block content %}
 <div class="container my-5">
@@ -174,6 +175,11 @@
 
 
 <script>
+    // Función para formatear números como moneda (ej: 1500000 -> "1,500,000")
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(value);
+    }
+
     // Cargar carrito en el resumen de facturación
     document.addEventListener("DOMContentLoaded", () => {
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -199,14 +205,14 @@
                          style="width: 60px; height: 60px; object-fit: cover;">
                     <div class="flex-grow-1">
                         <strong>${item.name}</strong><br>
-                        <small>${item.quantity} x $${item.price}</small><br>
-                        <small class="text-danger">Subtotal: $${subtotal.toFixed(2)}</small>
+                        <small>${item.quantity} x $${formatCurrency(item.price)}</small><br>
+                        <small class="text-danger">Subtotal: $${formatCurrency(subtotal)}</small>
                     </div>
                 </div>
             `;
         });
 
-        resumenTotal.textContent = `$${total.toFixed(2)}`;
+        resumenTotal.textContent = `$${formatCurrency(total)}`;
     });
 </script>
 {% endblock %}

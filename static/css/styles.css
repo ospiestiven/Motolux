@@ -1,15 +1,14 @@
 html, body {
     background-color: #f8f9fa;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Lato', sans-serif; /* Fuente base más legible */
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    
-    
 }
 h1,h2,h3 {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Poppins', sans-serif; /* Fuente moderna para títulos */
+    font-weight: 700; /* Títulos más audaces */
     letter-spacing: 1px;
     text-transform: uppercase;
 }
@@ -111,6 +110,12 @@ h1,h2,h3 {
     font-weight: bold;
 }
 
+.producto .card-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    text-transform: none; /* Quitamos el uppercase para nombres de producto */
+    letter-spacing: 0;
+}
 
 
 
@@ -145,7 +150,13 @@ h1,h2,h3 {
 }
 
 .producto button:hover {
-    background-color:#fb000d;
+    background-color:#B00911; /* Un rojo un poco más oscuro para el hover */
+    transform: scale(1.02); /* Pequeño efecto de zoom */
+}
+
+.producto:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
 }
 
 
@@ -244,7 +255,22 @@ footer p {
     font-size: 1rem;
 }
 
+/*ESTO ES PARA LAS MIGAS DE PAN EN producto_detalle*/
+.breadcrumb-link {
+    transition: color 0.25s ease-in-out;
+    font-weight: 500;
+}
 
+.breadcrumb-link:hover {
+    color: #555 !important;
+    text-decoration: none !important;
+}
+
+.breadcrumb i {
+    margin-right: 4px;
+    font-size: 1rem;
+    opacity: 0.8;
+}
 
 /* Ajustes responsive para categorias y header */
 @media (max-width: 991.98px) {
