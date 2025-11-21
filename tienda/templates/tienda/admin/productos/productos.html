@@ -82,7 +82,7 @@
             <tr>
                 <th class="border-gray-200">ID</th>
                 <th class="border-gray-200">Nombre</th>
-                <th class="border-gray-200">Modelo</th>
+                
                 <th class="border-gray-200">Imagen</th>
                 <th class="border-gray-200">Precio</th>
                 <th class="border-gray-200">Stock</th>
@@ -94,7 +94,7 @@
             <tr>
                 <td>{{ producto.id }}</td>
                 <td>{{ producto.nombre }}</td>
-                <td>{{ producto.modelo|default:"-" }}</td>
+                
                 <td>
                     {% if producto.imagen %}
                         <img src="{{ producto.imagen.url }}" width="60" class="img-thumbnail" alt="{{ producto.nombre }}">
@@ -171,6 +171,19 @@
                                             <label class="form-label">Modelo de Moto</label>
                                             <input type="text" name="modelo" class="form-control"
                                                 value="{{ producto.modelo|default_if_none:'' }}">
+                                        </div>
+                                        <!-- editar categoria -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Categoría</label>
+                                            <select name="categoria" class="form-select"
+                                                required>
+                                                <option value="">Seleccione una categoría</option>
+                                                {% for categoria in categorias %}
+                                                <option value="{{ categoria.id }}"
+                                                    {% if producto.categoria.id == categoria.id %}selected{% endif %}>
+                                                    {{ categoria.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Descripción</label>

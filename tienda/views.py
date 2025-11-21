@@ -229,9 +229,11 @@ def productos(request):
     else:
         form = ProductoForm()
     productos_qs = Producto.objects.all()
+    categorias_qs = Categoria.objects.all()  # Obtenemos todas las categorías
     return render(request, 'tienda/admin/productos/productos.html', {
         'productos': productos_qs,
         'formulario': form,
+        'categorias': categorias_qs,  # Las pasamos al contexto
     })
 
 #eliminar producto admin
@@ -254,6 +256,13 @@ def editar_producto(request, producto_id=None, id=None):
         producto.descripcion = request.POST.get('descripcion', producto.descripcion)
         producto.precio = request.POST.get('precio', producto.precio)
         producto.stock = request.POST.get('stock', producto.stock)
+
+        # Actualizar categoría si se proporciona
+        categoria_id = request.POST.get('categoria')
+        if categoria_id:
+            categoria = get_object_or_404(Categoria, id=categoria_id)
+            producto.categoria = categoria
+
         
         # Si viene una nueva imagen principal
         if 'imagen' in request.FILES:
